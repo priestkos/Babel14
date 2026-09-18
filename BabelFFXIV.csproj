@@ -1,0 +1,11 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <PropertyGroup>
+    <Version>0.1.0.0</Version>
+    <Author>saijm</Author>
+    <Name>Babel FFXIV</Name>
+    <Punchline>Two-way chat translation powered by an LLM.</Punchline>
+    <Description>Translate incoming and outgoing chat between languages using an LLM API. Toggle with /babel.</Description>
+    <RepoUrl>https://github.com/saijm/BabelFFXIV</RepoUrl>
+    <Tags>chat;translation;utility</Tags>
+  </PropertyGroup>
+</Project>
