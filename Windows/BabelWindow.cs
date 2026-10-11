@@ -60,7 +60,7 @@ public class BabelWindow : Window, IDisposable
     {
         var config = plugin.Configuration;
 
-        ImGui.TextWrapped("Compose a message in your language; it is translated and sent to Say chat.");
+        ImGui.TextWrapped("Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.");
         ImGui.Spacing();
 
         var target = targetLanguage;
@@ -75,7 +75,7 @@ public class BabelWindow : Window, IDisposable
         outgoingText = message;
 
         ImGui.BeginDisabled(sending);
-        if (ImGui.Button(sending ? "Translating..." : "Translate & Send", new Vector2(-1, 0)) || (submitted && !sending))
+        if (ImGui.Button(sending ? "Translating..." : "Translate & Copy to Clipboard", new Vector2(-1, 0)) || (submitted && !sending))
         {
             if (!sending && !string.IsNullOrWhiteSpace(outgoingText))
                 _ = SendAsync();
@@ -109,7 +109,8 @@ public class BabelWindow : Window, IDisposable
                 Message = translated,
             });
 
-            sendStatus = $"Sent: {translated}";
+            ImGui.SetClipboardText(translated);
+            sendStatus = $"Copied to clipboard & printed locally: {translated}";
             outgoingText = string.Empty;
         }
         catch (Exception ex)

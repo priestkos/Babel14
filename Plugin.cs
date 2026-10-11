@@ -41,7 +41,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggle the Babel translation window. /babel send <text> - translate & send to say."
+            HelpMessage = "Toggle the Babel translation window. /babel send <text> - translate & print to chat (local)."
         });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
