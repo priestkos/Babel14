@@ -1,4 +1,12 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <!-- The project file lives at the repo root, so the SDK's default **/*.cs
+       glob would compile BabelFFXIV.Tests into the plugin. -->
+  <ItemGroup>
+    <Compile Remove="BabelFFXIV.Tests/**" />
+    <EmbeddedResource Remove="BabelFFXIV.Tests/**" />
+    <None Remove="BabelFFXIV.Tests/**" />
+  </ItemGroup>
+
   <PropertyGroup>
     <Version>0.1.0.0</Version>
     <Author>saijm</Author>
