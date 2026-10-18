@@ -7,6 +7,16 @@ Bidirectional in-game chat translation for FFXIV, powered by any OpenAI-compatib
 - **Outgoing**: compose in your language in the plugin window (or `/babel send <text>`); the result is translated, printed to **local** chat, and (from the window) copied to the clipboard so you can paste into the game chat box.
 - Works with any OpenAI-compatible endpoint: OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
+## Screenshots
+
+Simulated UI mockups (not captured in-game):
+
+| Translate tab | Settings tab |
+| --- | --- |
+| ![Translate tab](docs/screenshots/babel-translate-tab.jpg) | ![Settings tab](docs/screenshots/babel-settings-tab.jpg) |
+
+![Incoming chat with translations](docs/screenshots/babel-chat-incoming.jpg)
+
 ## Usage
 1. `/babel` — open the window.
 2. Settings tab: set Base URL, Model, API key, your language, and any other languages you understand. Use **Test connection** to verify.
