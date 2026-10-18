@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
-using BabelFFXIV.Services;
 using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Plugin.Services;
@@ -18,9 +17,11 @@ public sealed class ChatTranslator : IDisposable
     private readonly LlmClient llm;
     private readonly IChatGui chat;
     private readonly IPluginLog log;
-
-    /// <summary>Messages already handled by us (prevents re-translating our own output).</summary>
-    private readonly ConcurrentDictionary<string, byte> ownMessages = new();
+    private readonly OwnMessageTracker ownMessages = new();
+    private readonly SemaphoreSlim gate = new(1, 1);
+    private readonly CancellationTokenSource lifetime = new();
+    private int pendingIncoming;
+    private const int MaxPendingIncoming = 8;
 
     public ChatTranslator(Plugin plugin, LlmClient llm, IChatGui chat, IPluginLog log)
     {
@@ -32,18 +33,10 @@ public sealed class ChatTranslator : IDisposable
         chat.ChatMessage += OnChatMessage;
     }
 
-    public bool Busy { get; private set; }
+    /// <summary>True while a translation holds the gate (incoming or outgoing).</summary>
+    public bool Busy => gate.CurrentCount == 0;
 
-    private void SetBusy(bool b) => Busy = b;
-
-    public void MarkOwn(string text)
-    {
-        ownMessages[text] = 0;
-        if (ownMessages.Count > 256)
-            ownMessages.Clear();
-    }
-
-    private bool OwnMessage(string text) => !ownMessages.TryAdd(text, 0);
+    public void MarkOwn(string text) => ownMessages.Mark(text);
 
     private void OnChatMessage(IHandleableChatMessage msg)
     {
@@ -56,36 +49,52 @@ public sealed class ChatTranslator : IDisposable
 
         var text = msg.Message.TextValue;
         var senderName = msg.Sender.TextValue;
-        if (string.IsNullOrWhiteSpace(text) || OwnMessage(text))
+        if (string.IsNullOrWhiteSpace(text) || ownMessages.Contains(text))
+            return;
+
+        if (Volatile.Read(ref pendingIncoming) >= MaxPendingIncoming)
             return;
 
         // Copy locals so they can cross into the background task; the message object
         // is only valid during this callback.
-        _ = Task.Run(() => TranslateIncomingAsync(msg.LogKind, senderName, text));
+        Interlocked.Increment(ref pendingIncoming);
+        _ = Task.Run(() => TranslateIncomingAsync(msg.LogKind, senderName, text, lifetime.Token));
     }
 
-    private async Task TranslateIncomingAsync(XivChatType type, string senderName, string text)
+    private async Task TranslateIncomingAsync(
+        XivChatType type,
+        string senderName,
+        string text,
+        CancellationToken cancellationToken)
     {
-        if (Busy)
-            return; // one at a time; cheap rate limiting
-        SetBusy(true);
-
+        var acquired = false;
         try
         {
+            await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            acquired = true;
+
+            if (cancellationToken.IsCancellationRequested || ownMessages.Contains(text))
+                return;
+
             var config = plugin.Configuration;
             var translated = await llm.TranslateAsync(
                 config.Model,
                 LlmClient.SystemPrompt(config.NativeLanguage),
-                text).ConfigureAwait(false);
+                text,
+                cancellationToken).ConfigureAwait(false);
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
 
             if (string.IsNullOrEmpty(translated) || translated == text)
                 return;
 
-            MarkOwn(translated);
-
             var line = config.ShowOriginal && !string.Equals(translated, text, StringComparison.OrdinalIgnoreCase)
                 ? $"{translated}\n[babel {senderName}: {text}]"
                 : translated;
+
+            // Mark every form we may see echoed back through ChatMessage.
+            ownMessages.MarkAll(translated, line);
 
             chat.Print(new XivChatEntry
             {
@@ -94,21 +103,42 @@ public sealed class ChatTranslator : IDisposable
                 Message = line,
             });
         }
+        catch (OperationCanceledException)
+        {
+            // Shutting down.
+        }
+        catch (ObjectDisposedException)
+        {
+            // Gate/client disposed during unload.
+        }
         catch (Exception ex)
         {
             log.Error(ex, "Babel: incoming translation failed");
-            chat.PrintError($"[babel] translation failed: {ex.Message}");
+            if (!cancellationToken.IsCancellationRequested)
+                chat.PrintError($"[babel] translation failed: {ex.Message}");
         }
         finally
         {
-            SetBusy(false);
+            if (acquired)
+            {
+                try { gate.Release(); }
+                catch (ObjectDisposedException) { }
+            }
+
+            Interlocked.Decrement(ref pendingIncoming);
         }
     }
 
     /// <summary>Translate text for outgoing chat into the target language.</summary>
-    public async Task<string> TranslateOutgoingAsync(string text, string targetLanguage)
+    public async Task<string> TranslateOutgoingAsync(
+        string text,
+        string targetLanguage,
+        CancellationToken cancellationToken = default)
     {
-        SetBusy(true);
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token, cancellationToken);
+        var token = linked.Token;
+
+        await gate.WaitAsync(token).ConfigureAwait(false);
         try
         {
             var config = plugin.Configuration;
@@ -119,13 +149,20 @@ public sealed class ChatTranslator : IDisposable
                 "angle brackets like <t>, and names exactly as written. " +
                 "Reply with ONLY the translation - no explanations, no quotes, no notes.";
 
-            return await llm.TranslateAsync(config.Model, prompt, text).ConfigureAwait(false);
+            return await llm.TranslateAsync(config.Model, prompt, text, token).ConfigureAwait(false);
         }
         finally
         {
-            SetBusy(false);
+            try { gate.Release(); }
+            catch (ObjectDisposedException) { }
         }
     }
 
-    public void Dispose() => chat.ChatMessage -= OnChatMessage;
+    public void Dispose()
+    {
+        chat.ChatMessage -= OnChatMessage;
+        lifetime.Cancel();
+        lifetime.Dispose();
+        gate.Dispose();
+    }
 }
