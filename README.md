@@ -9,11 +9,13 @@ Bidirectional in-game chat translation for FFXIV, powered by any OpenAI-compatib
 
 ## Screenshots
 
-Simulated UI mockups (not captured in-game):
+Simulated mockups of the current window and chat output (not captured in-game):
 
 | Translate tab | Settings tab |
 | --- | --- |
 | ![Translate tab](docs/screenshots/babel-translate-tab.jpg) | ![Settings tab](docs/screenshots/babel-settings-tab.jpg) |
+
+Incoming chat prints a follow-up line with the translation and, when enabled, `[babel Name: original]` underneath:
 
 ![Incoming chat with translations](docs/screenshots/babel-chat-incoming.jpg)
 
