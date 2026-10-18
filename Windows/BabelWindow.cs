@@ -58,8 +58,6 @@ public class BabelWindow : Window, IDisposable
 
     private void DrawTranslateTab()
     {
-        var config = plugin.Configuration;
-
         ImGui.TextWrapped("Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.");
         ImGui.Spacing();
 
@@ -100,7 +98,8 @@ public class BabelWindow : Window, IDisposable
                 ? config.KnownLanguages.FirstOrDefault(l => !string.IsNullOrWhiteSpace(l)) ?? "English"
                 : targetLanguage.Trim();
 
-            var translated = await plugin.Translator.TranslateOutgoingAsync(outgoingText.Trim(), target).ConfigureAwait(true);
+            var translated = await plugin.Translator.TranslateOutgoingAsync(outgoingText.Trim(), target)
+                .ConfigureAwait(false);
             plugin.Translator.MarkOwn(translated);
 
             Plugin.ChatGui.Print(new XivChatEntry
@@ -109,9 +108,15 @@ public class BabelWindow : Window, IDisposable
                 Message = translated,
             });
 
-            ImGui.SetClipboardText(translated);
+            // ImGui must be touched on the framework/UI thread.
+            await Plugin.Framework.Run(() => ImGui.SetClipboardText(translated)).ConfigureAwait(false);
+
             sendStatus = $"Copied to clipboard & printed locally: {translated}";
             outgoingText = string.Empty;
+        }
+        catch (OperationCanceledException)
+        {
+            sendStatus = "Cancelled.";
         }
         catch (Exception ex)
         {
@@ -248,7 +253,7 @@ public class BabelWindow : Window, IDisposable
                 throw new InvalidOperationException("Set your API key first.");
 
             plugin.Llm.Configure(config.ApiBaseUrl, config.ApiKey);
-            var reply = await plugin.Llm.TestAsync(config.Model, config.ApiKey).ConfigureAwait(true);
+            var reply = await plugin.Llm.TestAsync(config.Model).ConfigureAwait(false);
             testResult = $"OK - model replied: {reply}";
         }
         catch (Exception ex)

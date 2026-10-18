@@ -18,6 +18,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
     [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+    [PluginService] internal static IFramework Framework { get; private set; } = null!;
 
     private const string CommandName = "/babel";
 
@@ -103,6 +104,10 @@ public sealed class Plugin : IDalamudPlugin
                 Type = XivChatType.Say,
                 Message = translated,
             });
+        }
+        catch (OperationCanceledException)
+        {
+            // Plugin unloading.
         }
         catch (Exception ex)
         {
