@@ -1,44 +1,95 @@
 # Babel FFXIV
 
-Bidirectional in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM API.
+Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM API.
 
-## Features
-- **Incoming**: foreign chat in watched channels is translated to your language; the original is printed underneath (optional).
-- **Outgoing**: compose in your language in the plugin window (or `/babel send <text>`); the result is translated, printed to **local** chat, and (from the window) copied to the clipboard so you can paste into the game chat box.
-- Works with any OpenAI-compatible endpoint: OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
+`/babel` · Dalamud API 15 · .NET 10
+
+## What it does
+
+- **Incoming** — foreign chat in watched channels is translated to your language as a follow-up line, with the original underneath when enabled.
+- **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat, and from the window also to the clipboard for pasting into the game chat box.
+- **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
 ## Screenshots
 
-Simulated mockups of the current window and chat output (not captured in-game):
+Simulated mockups, not captured in-game:
 
 | Translate tab | Settings tab |
 | --- | --- |
 | ![Translate tab](docs/screenshots/babel-translate-tab.jpg) | ![Settings tab](docs/screenshots/babel-settings-tab.jpg) |
 
-Incoming chat prints a follow-up line with the translation and, when enabled, `[babel Name: original]` underneath:
+The printed follow-up, with `[babel Name: original]` underneath when enabled:
 
 ![Incoming chat with translations](docs/screenshots/babel-chat-incoming.jpg)
 
-## Usage
-1. `/babel` — open the window.
-2. Settings tab: set Base URL, Model, API key, your language, and any other languages you understand. Use **Test connection** to verify.
-3. Translate tab: type a message, hit Enter / **Translate & Copy to Clipboard**, then paste into the game chat if you want others to see it.
-4. `/babel send <text>` — translate and print locally (does not send on the network).
+## How it works
 
-## Privacy & security notes
-- Your **API key is stored in plaintext** in the Dalamud plugin config on disk (normal for Dalamud plugins). Treat the config directory like a secrets store.
-- **Base URL is fully user-controlled** so you can point at local or third-party OpenAI-compatible servers. Prefer HTTPS for remote endpoints; a mis-set URL can send chat text (and your Bearer token) to whatever host you configure, including LAN services on the game PC.
+Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
+
+Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that keeps tone, names and `<t>` emotes and asks for the translation only. Without a key no Bearer header is sent; requests time out after 20 s.
+
+Printed lines are recorded in an own-message tracker (256 entries, cleared on overflow) so the echoed chat line is not translated again.
+
+## Commands
+
+| Command | Effect |
+| --- | --- |
+| `/babel` | Toggle the window (also the plugin's main and config UI buttons). |
+| `/babel send <text>` | Translate into your first known language that is not your own; printed locally, never sent to other players. |
+
+## Settings
+
+- **LLM backend** — base URL (default `https://api.openai.com/v1`), model (default `gpt-4o-mini`), API key; edits apply and save at once.
+- **Languages** — your language (incoming target) and an editable known-language list (first entry is the default outgoing target, overridable per message).
+- **Behaviour** — translate incoming chat, show original underneath.
+- **Test connection** — one fixed greeting through the model; needs a key.
+
+## Build
+
+Requires the .NET 10 SDK and the Dalamud dev distribution
+(`%APPDATA%\XIVLauncher\addon\Hooks\dev`, or `DALAMUD_HOME`). The plugin build excludes
+`BabelFFXIV.Tests/`, so the test project never ends up in the zip.
+
+```
+dotnet build -c Debug      # load bin/Debug/BabelFFXIV.dll as a dev plugin
+dotnet build -c Release    # zip in bin/Release/BabelFFXIV/latest.zip
+```
+
+## Install (dev plugin)
+
+1. `/xlsettings` → Experimental → Dev Plugin Locations → add `bin\Debug\BabelFFXIV.dll`.
+2. `/xlplugins` → Dev Tools → enable **Babel FFXIV**.
+3. `/babel` opens the window; settings live in its Settings tab.
+
+## Tests
+
+`OwnMessageTracker` is tested offline without Dalamud (the test project links `Services/OwnMessageTracker.cs`): exact matches, no insert on lookup, both printed forms marked but not the original, overflow keeps only the latest.
+
+```
+dotnet test BabelFFXIV.Tests/BabelFFXIV.Tests.csproj    # 6 tests, all pass
+```
+
+## Security
+
+- **The API key is stored in plaintext** in the Dalamud plugin config on disk (normal for Dalamud plugins). Treat the config directory like a secrets store.
+- **Base URL is fully user-controlled**, so you can point at local or third-party OpenAI-compatible servers. Prefer HTTPS for remote endpoints: a mis-set URL sends chat text and your Bearer token to whatever host you configure, including LAN services on the game PC.
 - Chat text is sent to the configured LLM provider for translation.
 
-## Building
-Requires .NET 10 SDK and the Dalamud dev distrib at `%APPDATA%\XIVLauncher\addon\Hooks\dev`.
+## Limits
+
+- Watched channels are config-file only, with no UI.
+- One translation at a time; lines arriving beyond 8 pending are skipped.
+- Empty or unchanged replies are suppressed, not printed.
+- Window and screenshots are simulated; behaviour not verified in game.
+
+## Layout
 
 ```
-dotnet build -c Release
-dotnet test BabelFFXIV.Tests/BabelFFXIV.Tests.csproj
+Plugin.cs                     entry point, /babel handler, plugin services
+Configuration.cs              saved settings (URL, model, key, languages, channels)
+Services/ChatTranslator.cs    chat hook, queueing, incoming/outgoing prompts
+Services/LlmClient.cs         OpenAI-compatible client, test call, 20 s timeout
+Services/OwnMessageTracker.cs de-duplication of lines the plugin printed
+Windows/BabelWindow.cs        Translate and Settings tabs
+BabelFFXIV.Tests/             xUnit tests for OwnMessageTracker
 ```
-
-Output: `bin/Release/BabelFFXIV/` (zip-ready `latest.zip`).
-
-## Install (dev)
-`/xlsettings` → Experimental → Dev Plugin Locations → add `bin/Release/BabelFFXIV`, then enable under `/xlplugins` → Dev Tools.
