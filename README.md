@@ -10,18 +10,6 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 - **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat, and from the window also to the clipboard for pasting into the game chat box.
 - **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
-## Screenshots
-
-Simulated mockups, not captured in-game:
-
-| Translate tab | Settings tab |
-| --- | --- |
-| ![Translate tab](docs/screenshots/babel-translate-tab.jpg) | ![Settings tab](docs/screenshots/babel-settings-tab.jpg) |
-
-The printed follow-up, with `[babel Name: original]` underneath when enabled:
-
-![Incoming chat with translations](docs/screenshots/babel-chat-incoming.jpg)
-
 ## How it works
 
 Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
@@ -80,7 +68,7 @@ dotnet test BabelFFXIV.Tests/BabelFFXIV.Tests.csproj    # 6 tests, all pass
 - Watched channels are config-file only, with no UI.
 - One translation at a time; lines arriving beyond 8 pending are skipped.
 - Empty or unchanged replies are suppressed, not printed.
-- Window and screenshots are simulated; behaviour not verified in game.
+- Not verified in game: behaviour is taken from the code and the offline tests, not from a live client.
 
 ## Layout
 
