@@ -23,6 +23,16 @@ Screenshots are mock-ups illustrating the UI, not captures from the live game.
 
 HTML sources for regenerating PNGs: `docs/screenshots/src/` (`node render.mjs` after `npm install playwright` and `npx playwright install chromium` in that folder).
 
+### Mock-up video
+
+Same UI mock-ups as the screenshots above, animated in headless Chromium — **not a real in-game capture**.
+
+![Mock-up walkthrough preview](docs/videos/mockup-walkthrough.gif)
+
+[Download mock-up walkthrough (MP4)](docs/videos/mockup-walkthrough.mp4)
+
+Regenerate: `docs/videos/src/` (`npm install`, `npx playwright install chromium`, then `npm run render`).
+
 ### Feature coverage (UI and commands)
 
 | Feature | Shown in |

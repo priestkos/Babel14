@@ -1,0 +1,177 @@
+@import url("../../screenshots/src/common.css");
+
+.disclaimer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.disclaimer-overlay.visible {
+  opacity: 1;
+}
+.disclaimer-box {
+  max-width: 720px;
+  padding: 28px 36px;
+  border: 2px solid #6a8aba;
+  background: #171717;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}
+.disclaimer-box h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.disclaimer-box p {
+  font-size: 15px;
+  color: #c8c8c8;
+  line-height: 1.5;
+}
+
+.caption-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 90;
+  max-width: 900px;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid #505050;
+  border-radius: 4px;
+  font-size: 15px;
+  color: #f0f0f0;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.caption-bar.visible {
+  opacity: 1;
+}
+
+.scene-panel {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.scene-panel.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scene-specific layout (matches PNG mock-ups) */
+.scene-translate .imgui-window {
+  left: 420px;
+  top: 120px;
+  width: 440px;
+}
+.scene-settings .imgui-window {
+  left: 340px;
+  top: 40px;
+  width: 600px;
+}
+.scene-settings .test-result {
+  color: #b8d4a8;
+  margin-top: 8px;
+  line-height: 1.45;
+  max-width: 540px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.scene-settings .test-result.visible {
+  opacity: 1;
+}
+.scene-settings .tab-settings-content {
+  display: none;
+}
+.scene-settings.show-settings .tab-settings-content {
+  display: block;
+}
+.scene-settings.show-settings .tab-translate-content {
+  display: none;
+}
+.scene-settings .tab[data-tab="translate"] {
+  color: #a0a0a0;
+  background: transparent;
+  border-color: transparent;
+}
+.scene-settings .tab[data-tab="settings"] {
+  color: #a0a0a0;
+  background: transparent;
+  border-color: transparent;
+}
+.scene-settings.show-settings .tab[data-tab="settings"] {
+  background: #171717;
+  color: #f0f0f0;
+  border-color: #404040;
+}
+.scene-settings:not(.show-settings) .tab[data-tab="translate"] {
+  background: #171717;
+  color: #f0f0f0;
+  border-color: #404040;
+}
+
+.scene-incoming .chat-line-translation {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.scene-incoming.show-translation .chat-line-translation {
+  opacity: 1;
+}
+
+.scene-send .command-bar .cmd-text {
+  display: inline-block;
+  min-width: 1ch;
+}
+.scene-send .command-bar {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 640px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid #505050;
+  padding: 8px 12px;
+  font-family: Consolas, monospace;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+.scene-send .cmd-prefix {
+  color: #888;
+}
+.scene-send .chat-log {
+  bottom: 120px;
+}
+.scene-send .imgui-window {
+  left: 32px;
+  top: 48px;
+  width: 360px;
+}
+.scene-send .chat-line-out {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.scene-send.show-say .chat-line-out {
+  opacity: 1;
+}
+
+.btn-pressed {
+  filter: brightness(1.15);
+  outline: 1px solid #8ab0e0;
+}
+.tab-clicked {
+  filter: brightness(1.2);
+}
+.checkbox-row.toggled-off input {
+  opacity: 0.35;
+}
