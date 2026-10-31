@@ -1,0 +1,161 @@
+/* Approximation of Dalamud / Dear ImGui dark theme — mock-up only */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: #f0f0f0;
+  background: #0a0a0a;
+  min-height: 720px;
+  overflow: hidden;
+}
+
+.scene {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  background: linear-gradient(160deg, #1a2838 0%, #0d1520 45%, #1e3a2f 100%);
+}
+
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 40% 30% at 70% 60%, rgba(120, 180, 255, 0.08), transparent),
+    radial-gradient(ellipse 50% 40% at 30% 70%, rgba(80, 140, 90, 0.12), transparent);
+  pointer-events: none;
+}
+
+.imgui-window {
+  position: absolute;
+  background: #171717;
+  border: 1px solid #404040;
+  border-radius: 2px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+  min-width: 420px;
+}
+
+.imgui-titlebar {
+  background: linear-gradient(180deg, #3d5a8a 0%, #2a4070 100%);
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: default;
+  user-select: none;
+}
+
+.imgui-body { padding: 10px 12px 14px; }
+
+.tab-bar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid #404040;
+  margin: -2px -12px 10px;
+  padding: 0 8px;
+  background: #1a1a1a;
+}
+
+.tab {
+  padding: 6px 14px;
+  color: #a0a0a0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+  border-radius: 3px 3px 0 0;
+}
+.tab.active {
+  background: #171717;
+  color: #f0f0f0;
+  border-color: #404040;
+}
+
+.label-hint { color: #c8c8c8; line-height: 1.45; margin-bottom: 8px; }
+
+.field-row { margin-bottom: 8px; }
+.field-label {
+  display: block;
+  color: #d0d0d0;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+.input, .input-multiline {
+  background: #292929;
+  border: 1px solid #505050;
+  color: #f0f0f0;
+  padding: 5px 8px;
+  font: inherit;
+  border-radius: 2px;
+}
+.input { width: 220px; }
+.input.wide { width: 320px; }
+.input-med { width: 200px; }
+.input-multiline {
+  width: 100%;
+  min-height: 90px;
+  resize: none;
+  line-height: 1.4;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  background: #404040;
+  border: 1px solid #606060;
+  color: #f0f0f0;
+  font: inherit;
+  border-radius: 2px;
+  text-align: center;
+  margin-top: 6px;
+}
+.btn-sm {
+  display: inline-block;
+  width: auto;
+  padding: 4px 10px;
+  margin-top: 0;
+}
+.btn-primary { background: #4a6a9a; border-color: #6a8aba; }
+
+.status-ok { color: #b8d4a8; margin-top: 10px; line-height: 1.45; }
+.status-muted { color: #888; font-style: italic; }
+
+.separator {
+  border: none;
+  border-top: 1px solid #404040;
+  margin: 12px 0;
+}
+
+.section-title { color: #e8e8e8; margin-bottom: 6px; }
+
+.lang-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #e0e0e0;
+}
+.checkbox-row input {
+  width: 14px;
+  height: 14px;
+  accent-color: #4a6a9a;
+}
+
+/* FFXIV-ish chat log mock (generic, no game assets) */
+.chat-log {
+  position: absolute;
+  left: 24px;
+  bottom: 80px;
+  width: 520px;
+  font-size: 14px;
+  line-height: 1.55;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+.chat-line { margin-bottom: 4px; }
+.chat-say { color: #e8e8e8; }
+.chat-name { color: #8fd4ff; }
+.chat-party { color: #c8b0ff; }
+.chat-original { color: #909090; font-size: 13px; }

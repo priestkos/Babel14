@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Babel — Settings tab mock-up</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .imgui-window { left: 340px; top: 40px; width: 600px; }
+    .test-result { color: #b8d4a8; margin-top: 8px; line-height: 1.45; max-width: 540px; }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="imgui-window">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab">Translate</div>
+          <div class="tab active">Settings</div>
+        </div>
+        <p class="section-title">LLM backend (OpenAI-compatible chat completions)</p>
+        <div class="field-row">
+          <span class="field-label">Base URL</span>
+          <div class="input wide">https://api.openai.com/v1</div>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Model</span>
+          <div class="input wide">gpt-4o-mini</div>
+        </div>
+        <p class="status-muted" style="margin-bottom: 6px;">API key is set. Type a new key to replace it.</p>
+        <div class="field-row">
+          <span class="field-label">API Key</span>
+          <div class="input wide" style="letter-spacing: 2px; color: #888;">••••••••••••••••</div>
+        </div>
+        <hr class="separator" />
+        <p class="section-title">Languages</p>
+        <div class="field-row">
+          <span class="field-label">Your language (incoming translated to this)</span>
+          <div class="input input-med">English</div>
+        </div>
+        <div class="lang-row">
+          <div class="input input-med">English</div>
+          <div class="btn btn-sm">Remove</div>
+        </div>
+        <div class="lang-row">
+          <div class="input input-med">Japanese</div>
+          <div class="btn btn-sm">Remove</div>
+        </div>
+        <div class="btn btn-sm" style="width: auto; margin-top: 4px;">+ Add known language</div>
+        <hr class="separator" />
+        <label class="checkbox-row"><input type="checkbox" checked /> Translate incoming chat</label>
+        <label class="checkbox-row"><input type="checkbox" checked /> Show original text under translation</label>
+        <div style="margin-top: 12px;">
+          <div class="btn btn-sm btn-primary" style="width: 140px;">Test connection</div>
+        </div>
+        <p class="test-result">OK - model replied: Hello, nice to meet you!</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

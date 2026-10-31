@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Babel — /babel send mock-up</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .command-bar {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 640px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid #505050;
+      padding: 8px 12px;
+      font-family: Consolas, monospace;
+      font-size: 14px;
+      color: #e0e0e0;
+    }
+    .cmd-prefix { color: #888; }
+    .chat-log { bottom: 120px; }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="chat-log">
+      <div class="chat-line chat-say">
+        You say, "Bonjour, enchanté de vous rencontrer."
+      </div>
+    </div>
+    <div class="command-bar">
+      <span class="cmd-prefix">&gt; </span>/babel send Hello, nice to meet you!
+    </div>
+    <div class="imgui-window" style="left: 32px; top: 48px; width: 360px;">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab active">Translate</div>
+          <div class="tab">Settings</div>
+        </div>
+        <p class="label-hint" style="font-size: 12px;">
+          /babel toggles this window. Dalamud plugin bar buttons also open it.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Babel14 mock-up walkthrough</title>
+  <link rel="stylesheet" href="walkthrough.css" />
+</head>
+<body>
+  <div id="disclaimer" class="disclaimer-overlay">
+    <div class="disclaimer-box">
+      <h1>UI mock-up</h1>
+      <p>Not a real in-game capture. Illustrates the Babel plugin UI and chat behaviour only.</p>
+    </div>
+  </div>
+
+  <div id="caption" class="caption-bar" aria-live="polite"></div>
+
+  <!-- Scene 1: Translate tab -->
+  <div id="scene-translate" class="scene scene-panel scene-translate">
+    <div class="imgui-window">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab active">Translate</div>
+          <div class="tab">Settings</div>
+        </div>
+        <p class="label-hint">
+          Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
+        </p>
+        <div class="field-row">
+          <span class="field-label">Target language (blank = first known)</span>
+          <div class="input">Japanese</div>
+        </div>
+        <div class="field-row">
+          <div class="input-multiline">Looking for a tank for this duty, please join if you can.</div>
+        </div>
+        <div id="btn-translate" class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
+        <p id="translate-status" class="status-ok" style="opacity: 0; transition: opacity 0.4s ease;">
+          Copied to clipboard &amp; printed locally: このダンジョンのタンクを探しています。参加できる方はどうぞ。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 2: Settings tab (tab switch + interactions) -->
+  <div id="scene-settings" class="scene scene-panel scene-settings">
+    <div class="imgui-window">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab" data-tab="translate">Translate</div>
+          <div id="tab-settings" class="tab" data-tab="settings">Settings</div>
+        </div>
+        <div class="tab-translate-content">
+          <p class="label-hint">Switch to Settings to configure the LLM backend and languages.</p>
+        </div>
+        <div class="tab-settings-content">
+          <p class="section-title">LLM backend (OpenAI-compatible chat completions)</p>
+          <div class="field-row">
+            <span class="field-label">Base URL</span>
+            <div class="input wide">https://api.openai.com/v1</div>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Model</span>
+            <div class="input wide">gpt-4o-mini</div>
+          </div>
+          <p class="status-muted" style="margin-bottom: 6px;">API key is set. Type a new key to replace it.</p>
+          <div class="field-row">
+            <span class="field-label">API Key</span>
+            <div class="input wide" style="letter-spacing: 2px; color: #888;">••••••••••••••••</div>
+          </div>
+          <hr class="separator" />
+          <p class="section-title">Languages</p>
+          <div class="field-row">
+            <span class="field-label">Your language (incoming translated to this)</span>
+            <div class="input input-med">English</div>
+          </div>
+          <div class="lang-row">
+            <div class="input input-med">English</div>
+            <div class="btn btn-sm">Remove</div>
+          </div>
+          <div class="lang-row">
+            <div class="input input-med">Japanese</div>
+            <div class="btn btn-sm">Remove</div>
+          </div>
+          <div class="btn btn-sm" style="width: auto; margin-top: 4px;">+ Add known language</div>
+          <hr class="separator" />
+          <label class="checkbox-row"><input type="checkbox" checked /> Translate incoming chat</label>
+          <label id="cb-original" class="checkbox-row"><input id="cb-original-input" type="checkbox" checked /> Show original text under translation</label>
+          <div style="margin-top: 12px;">
+            <div id="btn-test" class="btn btn-sm btn-primary" style="width: 140px;">Test connection</div>
+          </div>
+          <p id="test-result" class="test-result">OK - model replied: Hello, nice to meet you!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 3: Incoming chat -->
+  <div id="scene-incoming" class="scene scene-panel scene-incoming">
+    <div class="chat-log">
+      <div class="chat-line chat-party">
+        <span class="chat-name">Example Character</span> says, "準備はいい？"
+      </div>
+      <div class="chat-line chat-party chat-line-translation">
+        <span class="chat-name">Example Character</span> says, "Are you ready?"
+        <br /><span class="chat-original">[babel Example Character: 準備はいい？]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 4: /babel send -->
+  <div id="scene-send" class="scene scene-panel scene-send">
+    <div class="chat-log">
+      <div class="chat-line chat-say chat-line-out">
+        You say, "Bonjour, enchanté de vous rencontrer."
+      </div>
+    </div>
+    <div class="command-bar">
+      <span class="cmd-prefix">&gt; </span>/babel send <span id="cmd-typed" class="cmd-text"></span><span id="cmd-cursor">▌</span>
+    </div>
+    <div class="imgui-window">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab active">Translate</div>
+          <div class="tab">Settings</div>
+        </div>
+        <p class="label-hint" style="font-size: 12px;">
+          /babel toggles this window. Dalamud plugin bar buttons also open it.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    function setCaption(text) {
+      const el = document.getElementById("caption");
+      el.textContent = text;
+      el.classList.add("visible");
+    }
+
+    function hideCaption() {
+      document.getElementById("caption").classList.remove("visible");
+    }
+
+    function showScene(id) {
+      document.querySelectorAll(".scene-panel").forEach((p) => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    async function typeCommand(text, charMs = 55) {
+      const target = document.getElementById("cmd-typed");
+      target.textContent = "";
+      for (const ch of text) {
+        target.textContent += ch;
+        await sleep(charMs);
+      }
+      document.getElementById("cmd-cursor").style.opacity = "0";
+    }
+
+    window.runWalkthrough = async () => {
+      const disclaimer = document.getElementById("disclaimer");
+      disclaimer.classList.add("visible");
+      await sleep(3200);
+      disclaimer.classList.remove("visible");
+      await sleep(450);
+
+      // Translate tab
+      showScene("scene-translate");
+      setCaption("Translate tab — compose, target language, Translate & Copy to Clipboard");
+      await sleep(2200);
+      const btn = document.getElementById("btn-translate");
+      btn.classList.add("btn-pressed");
+      await sleep(350);
+      btn.classList.remove("btn-pressed");
+      document.getElementById("translate-status").style.opacity = "1";
+      await sleep(3800);
+
+      // Settings tab
+      showScene("scene-settings");
+      setCaption("Settings — LLM backend, languages, behaviour, Test connection");
+      await sleep(1800);
+      const tabSettings = document.getElementById("tab-settings");
+      tabSettings.classList.add("tab-clicked");
+      await sleep(200);
+      document.getElementById("scene-settings").classList.add("show-settings");
+      tabSettings.classList.remove("tab-clicked");
+      await sleep(2200);
+      const cbRow = document.getElementById("cb-original");
+      const cbInput = document.getElementById("cb-original-input");
+      cbInput.checked = false;
+      cbRow.classList.add("toggled-off");
+      await sleep(600);
+      cbInput.checked = true;
+      cbRow.classList.remove("toggled-off");
+      await sleep(800);
+      const btnTest = document.getElementById("btn-test");
+      btnTest.classList.add("btn-pressed");
+      await sleep(350);
+      btnTest.classList.remove("btn-pressed");
+      document.getElementById("test-result").classList.add("visible");
+      await sleep(3200);
+
+      // Incoming
+      showScene("scene-incoming");
+      setCaption("Incoming chat — translation with original underneath");
+      await sleep(2000);
+      document.getElementById("scene-incoming").classList.add("show-translation");
+      await sleep(4500);
+
+      // /babel send
+      showScene("scene-send");
+      setCaption("/babel send — outgoing translate to local Say; /babel toggles the window");
+      document.getElementById("cmd-cursor").style.opacity = "1";
+      await sleep(1200);
+      await typeCommand("Hello, nice to meet you!", 50);
+      await sleep(400);
+      document.getElementById("scene-send").classList.add("show-say");
+      await sleep(4200);
+
+      hideCaption();
+      await sleep(400);
+      window.__walkthroughDone = true;
+    };
+  </script>
+</body>
+</html>
