@@ -43,9 +43,21 @@ jobs:
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $archive = [System.IO.Compression.ZipFile]::OpenRead($zipFile.FullName)
           try {
-            $entry = $archive.Entries | Where-Object { $_.Name -match '\.json$' } | Select-Object -First 1
-            if (-not $entry) { throw 'Plugin manifest not found in latest.zip' }
-            $reader = New-Object System.IO.StreamReader($entry.Open())
+            $pluginDllName = 'Babel14.dll'
+            $dllEntries = @($archive.Entries | Where-Object { $_.Name -like '*.dll' })
+            if ($dllEntries.Count -eq 0) {
+              throw 'No plugin .dll found inside latest.zip'
+            }
+            $dllEntry = $dllEntries | Where-Object { $_.Name -eq $pluginDllName } | Select-Object -First 1
+            if (-not $dllEntry) {
+              $dllEntry = $dllEntries | Select-Object -First 1
+            }
+            $manifestName = [System.IO.Path]::ChangeExtension($dllEntry.Name, '.json')
+            $manifestEntry = $archive.Entries | Where-Object { $_.Name -eq $manifestName }
+            if (-not $manifestEntry) {
+              throw "Manifest $manifestName not found inside latest.zip"
+            }
+            $reader = New-Object System.IO.StreamReader($manifestEntry.Open())
             try {
               $manifest = $reader.ReadToEnd() | ConvertFrom-Json
             } finally {
