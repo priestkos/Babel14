@@ -10,7 +10,7 @@
   background: rgba(0, 0, 0, 0.82);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.55s ease;
 }
 .disclaimer-overlay.visible {
   opacity: 1;
@@ -22,6 +22,15 @@
   background: #171717;
   text-align: center;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+  transform: translateY(8px);
+  opacity: 0;
+  transition:
+    opacity 0.5s ease 0.08s,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+}
+.disclaimer-overlay.visible .disclaimer-box {
+  transform: translateY(0);
+  opacity: 1;
 }
 .disclaimer-box h1 {
   font-size: 22px;
@@ -39,7 +48,7 @@
   position: fixed;
   left: 50%;
   bottom: 28px;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(6px);
   z-index: 90;
   max-width: 900px;
   padding: 10px 20px;
@@ -50,23 +59,93 @@
   color: #f0f0f0;
   text-align: center;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 .caption-bar.visible {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Simulated pointer */
+#mock-cursor {
+  position: fixed;
+  left: 640px;
+  top: 400px;
+  z-index: 250;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+#mock-cursor.visible {
+  opacity: 1;
+}
+#mock-cursor .cursor-shape {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  transform: translate(-2px, -2px);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+  transition: transform 0.08s ease;
+}
+#mock-cursor.clicking .cursor-shape {
+  transform: translate(-1px, 0) scale(0.92);
+}
+#mock-cursor .cursor-shape svg {
+  display: block;
+}
+#mock-cursor .click-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  border: 2px solid rgba(180, 210, 255, 0.75);
+  background: rgba(120, 160, 220, 0.12);
+  opacity: 0;
+  transform: scale(0.35);
+  pointer-events: none;
+}
+#mock-cursor .click-ripple.play {
+  animation: cursor-ripple 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes cursor-ripple {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
 }
 
 .scene-panel {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transform: translateX(14px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 .scene-panel.active {
   opacity: 1;
+  transform: translateX(0);
   pointer-events: auto;
+}
+.scene-panel.scene-leaving {
+  opacity: 0;
+  transform: translateX(-14px);
 }
 
 /* Scene-specific layout (matches PNG mock-ups) */
@@ -86,29 +165,69 @@
   line-height: 1.45;
   max-width: 540px;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transform: translateY(4px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .scene-settings .test-result.visible {
   opacity: 1;
+  transform: translateY(0);
 }
 .scene-settings .tab-settings-content {
-  display: none;
+  display: block;
+  opacity: 0;
+  transform: translateY(6px);
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    opacity 0.45s ease 0.05s,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
+    max-height 0.01s linear 0.45s;
 }
 .scene-settings.show-settings .tab-settings-content {
-  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 2000px;
+  transition:
+    opacity 0.5s ease 0.08s,
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
+    max-height 0.01s linear 0s;
+}
+.scene-settings .tab-translate-content {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 .scene-settings.show-settings .tab-translate-content {
-  display: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  position: absolute;
+  pointer-events: none;
 }
 .scene-settings .tab[data-tab="translate"] {
   color: #a0a0a0;
   background: transparent;
   border-color: transparent;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    filter 0.08s ease,
+    transform 0.08s ease;
 }
 .scene-settings .tab[data-tab="settings"] {
   color: #a0a0a0;
   background: transparent;
   border-color: transparent;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    filter 0.08s ease,
+    transform 0.08s ease;
 }
 .scene-settings.show-settings .tab[data-tab="settings"] {
   background: #171717;
@@ -123,10 +242,14 @@
 
 .scene-incoming .chat-line-translation {
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transform: translateY(6px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .scene-incoming.show-translation .chat-line-translation {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .scene-send .command-bar .cmd-text {
@@ -159,19 +282,45 @@
 }
 .scene-send .chat-line-out {
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transform: translateY(5px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .scene-send.show-say .chat-line-out {
   opacity: 1;
+  transform: translateY(0);
 }
 
-.btn-pressed {
-  filter: brightness(1.15);
+.btn-pressed,
+.ui-click-press {
+  filter: brightness(1.12);
   outline: 1px solid #8ab0e0;
+  transform: scale(0.985);
+  transition:
+    filter 0.08s ease,
+    transform 0.08s ease,
+    outline 0.08s ease;
 }
 .tab-clicked {
-  filter: brightness(1.2);
+  filter: brightness(1.15);
+  transform: scale(0.98);
 }
 .checkbox-row.toggled-off input {
   opacity: 0.35;
+}
+.checkbox-row {
+  transition: opacity 0.2s ease;
+}
+
+#translate-status {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#translate-status.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

@@ -15,6 +15,21 @@
 
   <div id="caption" class="caption-bar" aria-live="polite"></div>
 
+  <div id="mock-cursor" aria-hidden="true">
+    <div class="click-ripple"></div>
+    <div class="cursor-shape">
+      <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M3 2 L3 18 L7.2 14.2 L10.5 21 L12.8 19.8 L9.5 13.2 L15 12.5 Z"
+          fill="#ffffff"
+          stroke="#1a1a1a"
+          stroke-width="1.2"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+  </div>
+
   <!-- Scene 1: Translate tab -->
   <div id="scene-translate" class="scene scene-panel scene-translate">
     <div class="imgui-window">
@@ -35,7 +50,7 @@
           <div class="input-multiline">Looking for a tank for this duty, please join if you can.</div>
         </div>
         <div id="btn-translate" class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
-        <p id="translate-status" class="status-ok" style="opacity: 0; transition: opacity 0.4s ease;">
+        <p id="translate-status" class="status-ok">
           Copied to clipboard &amp; printed locally: このダンジョンのタンクを探しています。参加できる方はどうぞ。
         </p>
       </div>
@@ -136,6 +151,70 @@
   <script>
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    const cursorEl = document.getElementById("mock-cursor");
+    const rippleEl = cursorEl.querySelector(".click-ripple");
+    let cursorX = 640;
+    let cursorY = 400;
+
+    function setCursorPos(x, y) {
+      cursorX = x;
+      cursorY = y;
+      cursorEl.style.left = `${x}px`;
+      cursorEl.style.top = `${y}px`;
+    }
+
+    async function moveCursorTo(x, y, durationMs = 680) {
+      const startX = cursorX;
+      const startY = cursorY;
+      const start = performance.now();
+      return new Promise((resolve) => {
+        function frame(now) {
+          const t = Math.min(1, (now - start) / durationMs);
+          const e = easeInOutCubic(t);
+          setCursorPos(startX + (x - startX) * e, startY + (y - startY) * e);
+          if (t < 1) requestAnimationFrame(frame);
+          else resolve();
+        }
+        requestAnimationFrame(frame);
+      });
+    }
+
+    function elementClickPoint(el, ox = 0.55, oy = 0.5) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width * ox, y: r.top + r.height * oy };
+    }
+
+    async function moveCursorToElement(el, ox, oy) {
+      const { x, y } = elementClickPoint(el, ox, oy);
+      await moveCursorTo(x, y);
+    }
+
+    async function playClickRipple() {
+      rippleEl.classList.remove("play");
+      void rippleEl.offsetWidth;
+      rippleEl.classList.add("play");
+      cursorEl.classList.add("clicking");
+      await sleep(110);
+      cursorEl.classList.remove("clicking");
+      await sleep(280);
+      rippleEl.classList.remove("play");
+    }
+
+    async function clickTarget(el, { pressClass = "ui-click-press", tabClass = null } = {}) {
+      await moveCursorToElement(el);
+      await sleep(90);
+      await playClickRipple();
+      if (tabClass) el.classList.add(tabClass);
+      else if (pressClass) el.classList.add(pressClass);
+      await sleep(140);
+      if (tabClass) el.classList.remove(tabClass);
+      else if (pressClass) el.classList.remove(pressClass);
+    }
+
     function setCaption(text) {
       const el = document.getElementById("caption");
       el.textContent = text;
@@ -146,12 +225,19 @@
       document.getElementById("caption").classList.remove("visible");
     }
 
-    function showScene(id) {
-      document.querySelectorAll(".scene-panel").forEach((p) => p.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+    async function transitionToScene(id) {
+      const next = document.getElementById(id);
+      const current = document.querySelector(".scene-panel.active");
+      if (current && current !== next) {
+        current.classList.add("scene-leaving");
+        await sleep(480);
+        current.classList.remove("active", "scene-leaving");
+      }
+      next.classList.add("active");
+      await sleep(520);
     }
 
-    async function typeCommand(text, charMs = 55) {
+    async function typeCommand(text, charMs = 50) {
       const target = document.getElementById("cmd-typed");
       target.textContent = "";
       for (const ch of text) {
@@ -162,66 +248,70 @@
     }
 
     window.runWalkthrough = async () => {
+      setCursorPos(640, 400);
+      cursorEl.classList.add("visible");
+
       const disclaimer = document.getElementById("disclaimer");
       disclaimer.classList.add("visible");
-      await sleep(3200);
+      await sleep(3400);
       disclaimer.classList.remove("visible");
-      await sleep(450);
+      await sleep(550);
 
-      // Translate tab
-      showScene("scene-translate");
+      await transitionToScene("scene-translate");
       setCaption("Translate tab — compose, target language, Translate & Copy to Clipboard");
-      await sleep(2200);
+      await sleep(2000);
+
       const btn = document.getElementById("btn-translate");
-      btn.classList.add("btn-pressed");
-      await sleep(350);
-      btn.classList.remove("btn-pressed");
-      document.getElementById("translate-status").style.opacity = "1";
+      await clickTarget(btn, { pressClass: "btn-pressed" });
+      document.getElementById("translate-status").classList.add("visible");
       await sleep(3800);
 
-      // Settings tab
-      showScene("scene-settings");
+      await transitionToScene("scene-settings");
       setCaption("Settings — LLM backend, languages, behaviour, Test connection");
-      await sleep(1800);
+      await sleep(1600);
+
       const tabSettings = document.getElementById("tab-settings");
-      tabSettings.classList.add("tab-clicked");
-      await sleep(200);
+      await clickTarget(tabSettings, { tabClass: "tab-clicked" });
       document.getElementById("scene-settings").classList.add("show-settings");
-      tabSettings.classList.remove("tab-clicked");
-      await sleep(2200);
+      await sleep(2400);
+
       const cbRow = document.getElementById("cb-original");
       const cbInput = document.getElementById("cb-original-input");
+      await clickTarget(cbRow);
       cbInput.checked = false;
       cbRow.classList.add("toggled-off");
-      await sleep(600);
+      await sleep(700);
+      await clickTarget(cbRow);
       cbInput.checked = true;
       cbRow.classList.remove("toggled-off");
-      await sleep(800);
+      await sleep(900);
+
       const btnTest = document.getElementById("btn-test");
-      btnTest.classList.add("btn-pressed");
-      await sleep(350);
-      btnTest.classList.remove("btn-pressed");
+      await clickTarget(btnTest, { pressClass: "btn-pressed" });
       document.getElementById("test-result").classList.add("visible");
       await sleep(3200);
 
-      // Incoming
-      showScene("scene-incoming");
+      await transitionToScene("scene-incoming");
       setCaption("Incoming chat — translation with original underneath");
-      await sleep(2000);
+      await sleep(2200);
       document.getElementById("scene-incoming").classList.add("show-translation");
       await sleep(4500);
 
-      // /babel send
-      showScene("scene-send");
+      await transitionToScene("scene-send");
       setCaption("/babel send — outgoing translate to local Say; /babel toggles the window");
       document.getElementById("cmd-cursor").style.opacity = "1";
-      await sleep(1200);
-      await typeCommand("Hello, nice to meet you!", 50);
-      await sleep(400);
+      await moveCursorTo(520, 668, 720);
+      await sleep(900);
+      await typeCommand("Hello, nice to meet you!", 48);
+      await sleep(350);
+      await playClickRipple();
       document.getElementById("scene-send").classList.add("show-say");
-      await sleep(4200);
+      await moveCursorTo(640, 380, 600);
+      await sleep(4000);
 
       hideCaption();
+      await sleep(500);
+      cursorEl.classList.remove("visible");
       await sleep(400);
       window.__walkthroughDone = true;
     };
