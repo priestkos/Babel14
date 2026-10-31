@@ -1,4 +1,4 @@
-# Babel FFXIV
+# Babel14
 
 Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM API.
 
@@ -36,17 +36,17 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 
 Requires the .NET 10 SDK and the Dalamud dev distribution
 (`%APPDATA%\XIVLauncher\addon\Hooks\dev`, or `DALAMUD_HOME`). The plugin build excludes
-`BabelFFXIV.Tests/`, so the test project never ends up in the zip.
+`Babel14.Tests/`, so the test project never ends up in the zip.
 
 ```
-dotnet build -c Debug      # load bin/Debug/BabelFFXIV.dll as a dev plugin
-dotnet build -c Release    # zip in bin/Release/BabelFFXIV/latest.zip
+dotnet build -c Debug      # load bin/Debug/Babel14.dll as a dev plugin
+dotnet build -c Release    # zip in bin/Release/Babel14/latest.zip
 ```
 
 ## Install (dev plugin)
 
-1. `/xlsettings` → Experimental → Dev Plugin Locations → add `bin\Debug\BabelFFXIV.dll`.
-2. `/xlplugins` → Dev Tools → enable **Babel FFXIV**.
+1. `/xlsettings` → Experimental → Dev Plugin Locations → add `bin\Debug\Babel14.dll`.
+2. `/xlplugins` → Dev Tools → enable **Babel14**.
 3. `/babel` opens the window; settings live in its Settings tab.
 
 ## Tests
@@ -54,7 +54,7 @@ dotnet build -c Release    # zip in bin/Release/BabelFFXIV/latest.zip
 `OwnMessageTracker` is tested offline without Dalamud (the test project links `Services/OwnMessageTracker.cs`): exact matches, no insert on lookup, both printed forms marked but not the original, overflow keeps only the latest.
 
 ```
-dotnet test BabelFFXIV.Tests/BabelFFXIV.Tests.csproj    # 6 tests, all pass
+dotnet test Babel14.Tests/Babel14.Tests.csproj    # 6 tests, all pass
 ```
 
 ## Security
@@ -79,5 +79,5 @@ Services/ChatTranslator.cs    chat hook, queueing, incoming/outgoing prompts
 Services/LlmClient.cs         OpenAI-compatible client, test call, 20 s timeout
 Services/OwnMessageTracker.cs de-duplication of lines the plugin printed
 Windows/BabelWindow.cs        Translate and Settings tabs
-BabelFFXIV.Tests/             xUnit tests for OwnMessageTracker
+Babel14.Tests/             xUnit tests for OwnMessageTracker
 ```

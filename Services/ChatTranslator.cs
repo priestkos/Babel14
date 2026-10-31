@@ -5,7 +5,7 @@ using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Plugin.Services;
 
-namespace BabelFFXIV.Services;
+namespace Babel14.Services;
 
 /// <summary>
 /// Watches incoming chat and translates foreign messages via the LLM,

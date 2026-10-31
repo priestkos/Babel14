@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BabelFFXIV.Services;
-using BabelFFXIV.Windows;
+using Babel14.Services;
+using Babel14.Windows;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text;
 using Dalamud.IoC;
@@ -10,7 +10,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Interface.Windowing;
 
-namespace BabelFFXIV;
+namespace Babel14;
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -26,7 +26,7 @@ public sealed class Plugin : IDalamudPlugin
     public LlmClient Llm { get; }
     public ChatTranslator Translator { get; }
 
-    public readonly WindowSystem WindowSystem = new("BabelFFXIV");
+    public readonly WindowSystem WindowSystem = new("Babel14");
     private readonly BabelWindow window;
 
     public Plugin()
@@ -49,7 +49,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenConfigUi += ToggleMain;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMain;
 
-        Log.Information("Babel FFXIV loaded");
+        Log.Information("Babel14 loaded");
     }
 
     public void Dispose()

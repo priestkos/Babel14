@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <RootNamespace>BabelFFXIV.Tests</RootNamespace>
+    <RootNamespace>Babel14.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

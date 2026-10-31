@@ -2,7 +2,7 @@ using Dalamud.Configuration;
 using System;
 using System.Collections.Generic;
 
-namespace BabelFFXIV;
+namespace Babel14;
 
 [Serializable]
 public class Configuration : IPluginConfiguration

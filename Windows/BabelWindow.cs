@@ -7,7 +7,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Game.Text;
 using Dalamud.Plugin.Services;
 
-namespace BabelFFXIV.Windows;
+namespace Babel14.Windows;
 
 public class BabelWindow : Window, IDisposable
 {

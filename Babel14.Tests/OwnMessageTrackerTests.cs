@@ -1,7 +1,7 @@
-using BabelFFXIV.Services;
+using Babel14.Services;
 using Xunit;
 
-namespace BabelFFXIV.Tests;
+namespace Babel14.Tests;
 
 public class OwnMessageTrackerTests
 {

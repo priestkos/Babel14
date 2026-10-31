@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace BabelFFXIV.Services;
+namespace Babel14.Services;
 
 /// <summary>
 /// Tracks texts we emitted (or otherwise own) so ChatMessage handlers can ignore them.

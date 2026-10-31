@@ -1,17 +1,17 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <ItemGroup>
-    <Compile Remove="BabelFFXIV.Tests/**" />
-    <None Remove="BabelFFXIV.Tests/**" />
+    <Compile Remove="Babel14.Tests/**" />
+    <None Remove="Babel14.Tests/**" />
   </ItemGroup>
 
   <PropertyGroup>
     <Version>0.1.0.1</Version>
     <Author>PriestKos</Author>
     <Authors>PriestKos</Authors>
-    <Name>Babel FFXIV</Name>
+    <Name>Babel14</Name>
     <Punchline>Two-way chat translation powered by an LLM.</Punchline>
     <Description>Translate incoming and outgoing chat between languages using an LLM API. Toggle with /babel.</Description>
-    <RepoUrl>https://github.com/priestkos/BabelFFXIV</RepoUrl>
+    <RepoUrl>https://github.com/priestkos/Babel14</RepoUrl>
     <Tags>chat;translation;utility</Tags>
   </PropertyGroup>
 </Project>

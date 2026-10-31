@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BabelFFXIV.Services;
+namespace Babel14.Services;
 
 /// <summary>Minimal OpenAI-compatible chat-completions client.</summary>
 public sealed class LlmClient : IDisposable
