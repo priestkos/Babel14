@@ -10,6 +10,34 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 - **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat, and from the window also to the clipboard for pasting into the game chat box.
 - **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
+## Screenshots
+
+Screenshots are mock-ups illustrating the UI, not captures from the live game.
+
+| | |
+| --- | --- |
+| ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints local Say and copies the translation). |
+| ![Settings tab — LLM backend, languages, behaviour, test connection](docs/screenshots/02-settings-tab.png) | **Settings tab** — Base URL, Model, API Key, your language, known languages (+ Add / Remove), behaviour checkboxes, **Test connection**. |
+| ![Incoming chat — translation with original underneath](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s follow-up with **Show original text under translation** (`[babel …]` line). |
+| ![Slash command /babel send — local Say output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Say); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
+
+HTML sources for regenerating PNGs: `docs/screenshots/src/` (`node render.mjs` after `npm install playwright` and `npx playwright install chromium` in that folder).
+
+### Feature coverage (UI and commands)
+
+| Feature | Shown in |
+| --- | --- |
+| `/babel` — toggle Babel window | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (window open); also [01](docs/screenshots/01-translate-tab.png), [02](docs/screenshots/02-settings-tab.png) |
+| Dalamud **Open Main UI** / **Open Config UI** plugin buttons (same toggle) | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (caption) |
+| **Translate** tab — multiline compose, target language field, **Translate & Copy to Clipboard**, status text | [01-translate-tab.png](docs/screenshots/01-translate-tab.png) |
+| **`/babel send &lt;text&gt;`** — outgoing translate to first known language ≠ your language, local Say | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
+| **Translate incoming chat** (watched `XivChatType` channels) | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); toggle in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **Show original text under translation** | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); checkbox in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **LLM backend** — Base URL, Model, API Key (password field; “API key is set…” hint) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **Languages** — your language (incoming target), known-language list, **+ Add known language**, **Remove** | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **Test connection** (fixed greeting; OK / Failed result text) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **Watched channels** list (config file only, no in-game UI) | README / config — not pictured |
+
 ## How it works
 
 Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.

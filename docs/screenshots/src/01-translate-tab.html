@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Babel — Translate tab mock-up</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .imgui-window { left: 420px; top: 120px; width: 440px; }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="imgui-window">
+      <div class="imgui-titlebar">Babel</div>
+      <div class="imgui-body">
+        <div class="tab-bar">
+          <div class="tab active">Translate</div>
+          <div class="tab">Settings</div>
+        </div>
+        <p class="label-hint">
+          Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
+        </p>
+        <div class="field-row">
+          <span class="field-label">Target language (blank = first known)</span>
+          <div class="input">Japanese</div>
+        </div>
+        <div class="field-row">
+          <div class="input-multiline">Looking for a tank for this duty, please join if you can.</div>
+        </div>
+        <div class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
+        <p class="status-ok">
+          Copied to clipboard &amp; printed locally: このダンジョンのタンクを探しています。参加できる方はどうぞ。
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
