@@ -72,6 +72,8 @@ async function main() {
     "-y",
     "-i",
     webmPath,
+    "-vf",
+    "fps=30",
     "-c:v",
     "libx264",
     "-crf",

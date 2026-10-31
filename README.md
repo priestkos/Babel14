@@ -21,8 +21,6 @@ Screenshots are mock-ups illustrating the UI, not captures from the live game.
 | ![Incoming chat — translation with original underneath](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s follow-up with **Show original text under translation** (`[babel …]` line). |
 | ![Slash command /babel send — local Say output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Say); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
 
-HTML sources for regenerating PNGs: `docs/screenshots/src/` (`node render.mjs` after `npm install playwright` and `npx playwright install chromium` in that folder).
-
 ### Mock-up video
 
 Same UI mock-ups as the screenshots above, animated in headless Chromium — **not a real in-game capture**.
@@ -30,8 +28,6 @@ Same UI mock-ups as the screenshots above, animated in headless Chromium — **n
 ![Mock-up walkthrough preview](docs/videos/mockup-walkthrough.gif)
 
 [Download mock-up walkthrough (MP4)](docs/videos/mockup-walkthrough.mp4)
-
-Regenerate: `docs/videos/src/` (`npm install`, `npx playwright install chromium`, then `npm run render`).
 
 ### Feature coverage (UI and commands)
 
