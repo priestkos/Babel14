@@ -1,5 +1,7 @@
 # Babel14
 
+<img src="images/icon.png" width="96">
+
 Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM API.
 
 `/babel` · Dalamud API 15 · .NET 10

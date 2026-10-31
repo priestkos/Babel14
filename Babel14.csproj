@@ -12,6 +12,7 @@
     <Punchline>Two-way chat translation powered by an LLM.</Punchline>
     <Description>Translate incoming and outgoing chat between languages using an LLM API. Toggle with /babel.</Description>
     <RepoUrl>https://github.com/priestkos/Babel14</RepoUrl>
+    <IconUrl>https://raw.githubusercontent.com/priestkos/Babel14/main/images/icon.png</IconUrl>
     <Tags>chat;translation;utility</Tags>
   </PropertyGroup>
 </Project>
