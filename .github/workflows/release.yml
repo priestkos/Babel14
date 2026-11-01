@@ -2,24 +2,141 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'images/**'
+      - 'screenshots/**'
+      - '*.png'
+      - '*.mp4'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event_name != 'pull_request'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
+
+      - name: Plan release
+        id: plan
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          function Get-FourPartVersion([string]$value) {
+            $parts = @($value.Trim().Split('.'))
+            while ($parts.Count -lt 4) { $parts += '0' }
+            if ($parts.Count -gt 4) { $parts = $parts[0..3] }
+            return ($parts -join '.')
+          }
+
+          function Compare-FourPartVersion([string]$left, [string]$right) {
+            $a = [version](Get-FourPartVersion $left)
+            $b = [version](Get-FourPartVersion $right)
+            return $a.CompareTo($b)
+          }
+
+          function Set-GhOutput([string]$name, [string]$value) {
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "${name}=${value}" -Encoding utf8
+          }
+
+          Set-GhOutput skip false
+          Set-GhOutput mode unknown
+
+          $ref = $env:GITHUB_REF
+          $eventName = $env:GITHUB_EVENT_NAME
+
+          if ($ref -match '^refs/tags/v') {
+            Set-GhOutput mode tag
+            Set-GhOutput build_version ''
+            exit 0
+          }
+
+          if ($eventName -eq 'workflow_dispatch') {
+            Set-GhOutput mode dispatch
+            Set-GhOutput build_version ''
+            exit 0
+          }
+
+          if ($ref -ne 'refs/heads/main') {
+            throw "Unexpected ref for automatic release: $ref"
+          }
+
+          Set-GhOutput mode main_auto
+
+          $sha = $env:GITHUB_SHA
+          $existingForCommit = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" `
+            --jq ".[] | select(.target_commitish == `"$sha`") | .tag_name"
+          if (-not [string]::IsNullOrWhiteSpace($existingForCommit)) {
+            Write-Host "Commit $sha already has release $existingForCommit; skipping."
+            Set-GhOutput skip true
+            exit 0
+          }
+
+          $releaseTagNames = @(gh release list --limit 100 --json tagName -q '.[].tagName')
+          $releaseTags = @(
+            $releaseTagNames | ForEach-Object {
+              if ($_ -match '^v(.+)$') { Get-FourPartVersion $matches[1] }
+            }
+          )
+
+          $latestReleaseVersion = $null
+          if ($releaseTags.Count -gt 0) {
+            $latestReleaseVersion = (
+              $releaseTags |
+                ForEach-Object { [version]$_ } |
+                Sort-Object -Descending |
+                Select-Object -First 1
+            ).ToString()
+          }
+
+          [xml]$project = Get-Content -Path 'Babel14.csproj'
+          $csprojVersion = Get-FourPartVersion ([string]$project.Project.PropertyGroup.Version)
+
+          if (-not $latestReleaseVersion) {
+            $nextVersion = $csprojVersion
+          } elseif ((Compare-FourPartVersion $csprojVersion $latestReleaseVersion) -gt 0) {
+            $nextVersion = $csprojVersion
+          } else {
+            $parts = (Get-FourPartVersion $latestReleaseVersion).Split('.')
+            $parts[3] = [string]([int]$parts[3] + 1)
+            $nextVersion = ($parts -join '.')
+          }
+
+          $tag = "v$nextVersion"
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Release $tag already exists; skipping."
+            Set-GhOutput skip true
+            exit 0
+          }
+
+          Write-Host "Next release version: $nextVersion (tag $tag)"
+          Set-GhOutput expected_version $nextVersion
+          Set-GhOutput release_tag $tag
+          Set-GhOutput build_version $nextVersion
+
       - name: Set up .NET
+        if: steps.plan.outputs.skip != 'true'
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
       - name: Install the Dalamud development distribution
+        if: steps.plan.outputs.skip != 'true'
         shell: pwsh
         run: |
           $dest = Join-Path $env:APPDATA 'XIVLauncher\addon\Hooks\dev'
@@ -28,9 +145,21 @@ jobs:
           Expand-Archive -Path dalamud.zip -DestinationPath $dest -Force
 
       - name: Build Babel14
-        run: dotnet build Babel14.csproj -c Release
+        if: steps.plan.outputs.skip != 'true'
+        shell: pwsh
+        run: |
+          $version = '${{ steps.plan.outputs.build_version }}'
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            dotnet build Babel14.csproj -c Release
+          } else {
+            dotnet build Babel14.csproj -c Release `
+              -p:Version=$version `
+              -p:AssemblyVersion=$version `
+              -p:FileVersion=$version
+          }
 
       - name: Publish GitHub Release
+        if: steps.plan.outputs.skip != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -70,19 +199,32 @@ jobs:
           $assemblyVersion = [string]$manifest.AssemblyVersion
           if ([string]::IsNullOrWhiteSpace($assemblyVersion)) { throw 'AssemblyVersion missing from manifest' }
 
-          if ($env:GITHUB_EVENT_NAME -eq 'push') {
+          $mode = '${{ steps.plan.outputs.mode }}'
+
+          if ($mode -eq 'tag') {
             $tag = $env:GITHUB_REF_NAME
             $tagVersion = $tag -replace '^v', ''
             if ($tagVersion -ne $assemblyVersion) {
               throw "Tag version '$tagVersion' does not match AssemblyVersion '$assemblyVersion'"
             }
             gh release create $tag $zipFile.FullName --title $tag --generate-notes
-          } else {
-            $tag = "v$assemblyVersion"
-            gh release view $tag 2>$null
-            if ($LASTEXITCODE -eq 0) {
-              Write-Host "Release $tag already exists; skipping."
-              exit 0
-            }
-            gh release create $tag $zipFile.FullName --title $tag --generate-notes
+            exit 0
           }
+
+          if ($mode -eq 'main_auto') {
+            $expected = '${{ steps.plan.outputs.expected_version }}'
+            if ($assemblyVersion -ne $expected) {
+              throw "Built AssemblyVersion '$assemblyVersion' does not match expected '$expected'"
+            }
+            $tag = '${{ steps.plan.outputs.release_tag }}'
+            gh release create $tag $zipFile.FullName --target $env:GITHUB_SHA --title $tag --generate-notes
+            exit 0
+          }
+
+          $tag = "v$assemblyVersion"
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Release $tag already exists; skipping."
+            exit 0
+          }
+          gh release create $tag $zipFile.FullName --title $tag --generate-notes
