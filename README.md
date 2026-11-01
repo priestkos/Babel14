@@ -79,6 +79,8 @@ dotnet build -c Debug      # load bin/Debug/Babel14.dll as a dev plugin
 dotnet build -c Release    # zip in bin/Release/Babel14/latest.zip
 ```
 
+**Releases:** Each push to `main` that changes the plugin (not docs-only paths) creates a GitHub release automatically; the version is the next four-part number above the latest release (or the csproj version when that is already higher).
+
 ## Install (dev plugin)
 
 1. `/xlsettings` → Experimental → Dev Plugin Locations → add `bin\Debug\Babel14.dll`.
