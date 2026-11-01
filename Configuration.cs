@@ -12,10 +12,10 @@ public class Configuration : IPluginConfiguration
 
     // --- LLM backend ---
     /// <summary>Base URL of an OpenAI-compatible chat completions endpoint.</summary>
-    public string ApiBaseUrl { get; set; } = "https://api.openai.com/v1";
+    public string ApiBaseUrl { get; set; } = "https://openrouter.ai/api/v1";
 
-    /// <summary>Model name, e.g. gpt-4o-mini, deepseek-chat, llama3...</summary>
-    public string Model { get; set; } = "gpt-4o-mini";
+    /// <summary>Model name, e.g. openrouter/free, openai/gpt-4o-mini, deepseek-chat, llama3...</summary>
+    public string Model { get; set; } = "openrouter/free";
 
     /// <summary>API key. Stored locally in plugin config.</summary>
     public string ApiKey { get; set; } = string.Empty;

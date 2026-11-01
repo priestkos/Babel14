@@ -63,7 +63,7 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 
 ## Settings
 
-- **LLM backend** — base URL (default `https://api.openai.com/v1`), model (default `gpt-4o-mini`), API key; edits apply and save at once.
+- **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model (default `openrouter/free`), API key; edits apply and save at once. An OpenRouter key (`sk-or-…`) is still required — the router picks a free model behind it.
 - **Languages** — your language (incoming target) and an editable known-language list (first entry is the default outgoing target, overridable per message).
 - **Behaviour** — translate incoming chat, show original underneath.
 - **Test connection** — one fixed greeting through the model; needs a key.

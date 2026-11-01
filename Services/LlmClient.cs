@@ -19,14 +19,14 @@ public sealed class LlmClient : IDisposable
     };
     private readonly object gate = new();
 
-    private string baseUrl = "https://api.openai.com/v1";
+    private string baseUrl = "https://openrouter.ai/api/v1";
     private string apiKey = string.Empty;
 
     public void Configure(string baseUrl, string apiKey)
     {
         var root = (baseUrl ?? string.Empty).TrimEnd('/');
         if (string.IsNullOrWhiteSpace(root))
-            root = "https://api.openai.com/v1";
+            root = "https://openrouter.ai/api/v1";
 
         lock (gate)
         {
