@@ -1,4 +1,5 @@
 using Dalamud.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -24,6 +25,9 @@ public class Configuration : IPluginConfiguration
     public string NativeLanguage { get; set; } = "English";
 
     /// <summary>Languages you can speak. Outgoing chat is translated into the chosen target.</summary>
+    // Json.NET reuses an initialised list and appends the JSON items to it, so every
+    // plugin load re-added the defaults (one "English" per session). Replace instead.
+    [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
     public List<string> KnownLanguages { get; set; } = new() { "English" };
 
     /// <summary>Translate incoming chat messages.</summary>
@@ -34,6 +38,7 @@ public class Configuration : IPluginConfiguration
 
     /// <summary>Chat channel IDs (XivChatType raw values) to watch for incoming messages.
     /// Defaults: Say(10), Shout(13), Yell(14), TellIncoming(58), Party(18), Alliance(20).</summary>
+    [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
     public List<int> WatchedChannels { get; set; } = new() { 10, 13, 14, 58, 18, 20 };
 
     public void Save() => Plugin.PluginInterface.SavePluginConfig(this);
