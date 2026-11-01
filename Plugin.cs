@@ -101,7 +101,7 @@ public sealed class Plugin : IDalamudPlugin
 
             ChatGui.Print(new XivChatEntry
             {
-                Type = XivChatType.Say,
+                Type = XivChatType.Echo,
                 Message = translated,
             });
         }

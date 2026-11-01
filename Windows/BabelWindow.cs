@@ -104,7 +104,7 @@ public class BabelWindow : Window, IDisposable
 
             Plugin.ChatGui.Print(new XivChatEntry
             {
-                Type = XivChatType.Say,
+                Type = XivChatType.Echo,
                 Message = translated,
             });
 

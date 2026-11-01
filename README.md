@@ -1,4 +1,4 @@
-# Babel14
+﻿# Babel14
 
 <img src="images/icon.png" width="96">
 
@@ -9,7 +9,7 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 ## What it does
 
 - **Incoming** — foreign chat in watched channels is translated to your language as a follow-up line, with the original underneath when enabled.
-- **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat, and from the window also to the clipboard for pasting into the game chat box.
+- **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat as an `Echo` line, and from the window also to the clipboard for pasting into the game chat box.
 - **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
 ## Screenshots
@@ -18,10 +18,10 @@ Screenshots are mock-ups illustrating the UI, not captures from the live game.
 
 | | |
 | --- | --- |
-| ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints local Say and copies the translation). |
+| ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints an Echo line and copies the translation). |
 | ![Settings tab — LLM backend, languages, behaviour, test connection](docs/screenshots/02-settings-tab.png) | **Settings tab** — Base URL, Model, API Key, your language, known languages (+ Add / Remove), behaviour checkboxes, **Test connection**. |
 | ![Incoming chat — translation with original underneath](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s follow-up with **Show original text under translation** (`[babel …]` line). |
-| ![Slash command /babel send — local Say output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Say); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
+| ![Slash command /babel send — local Echo output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Echo); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
 
 ### Mock-up video
 
@@ -38,7 +38,7 @@ Same UI mock-ups as the screenshots above, animated in headless Chromium — **n
 | `/babel` — toggle Babel window | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (window open); also [01](docs/screenshots/01-translate-tab.png), [02](docs/screenshots/02-settings-tab.png) |
 | Dalamud **Open Main UI** / **Open Config UI** plugin buttons (same toggle) | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (caption) |
 | **Translate** tab — multiline compose, target language field, **Translate & Copy to Clipboard**, status text | [01-translate-tab.png](docs/screenshots/01-translate-tab.png) |
-| **`/babel send &lt;text&gt;`** — outgoing translate to first known language ≠ your language, local Say | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
+| **`/babel send &lt;text&gt;`** — outgoing translate to first known language ≠ your language, local Echo | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
 | **Translate incoming chat** (watched `XivChatType` channels) | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); toggle in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **Show original text under translation** | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); checkbox in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **LLM backend** — Base URL, Model, API Key (password field; “API key is set…” hint) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
@@ -59,7 +59,7 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 | Command | Effect |
 | --- | --- |
 | `/babel` | Toggle the window (also the plugin's main and config UI buttons). |
-| `/babel send <text>` | Translate into your first known language that is not your own; printed locally, never sent to other players. |
+| `/babel send <text>` | Translate into your first known language that is not your own; printed locally as an `Echo` line, never sent to other players. |
 
 ## Settings
 
