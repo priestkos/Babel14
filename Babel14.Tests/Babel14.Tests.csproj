@@ -19,5 +19,6 @@
   <!-- Link pure helpers so tests do not need the Dalamud SDK. -->
   <ItemGroup>
     <Compile Include="..\Services\OwnMessageTracker.cs" Link="OwnMessageTracker.cs" />
+    <Compile Include="..\Services\LlmClient.cs" Link="LlmClient.cs" />
   </ItemGroup>
 </Project>

@@ -142,12 +142,7 @@ public sealed class ChatTranslator : IDisposable
         try
         {
             var config = plugin.Configuration;
-            var prompt =
-                "You are a real-time translator inside the chat of the online game Final Fantasy XIV. " +
-                $"Translate the user's message into {targetLanguage}. " +
-                "Preserve tone and register (casual game chat). Keep game terms, item names, emotes inside " +
-                "angle brackets like <t>, and names exactly as written. " +
-                "Reply with ONLY the translation - no explanations, no quotes, no notes.";
+            var prompt = LlmClient.SystemPrompt(targetLanguage);
 
             return await llm.TranslateAsync(config.Model, prompt, text, token).ConfigureAwait(false);
         }

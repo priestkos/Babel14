@@ -50,7 +50,7 @@ Same UI mock-ups as the screenshots above, animated in headless Chromium — **n
 
 Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
 
-Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that keeps tone, names and `<t>` emotes and asks for the translation only. Without a key no Bearer header is sent; requests time out after 20 s.
+Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that keeps tone, names and `<t>` emotes, asks for the translation only, and states that the player's message is untrusted data to translate rather than instructions to follow. That prompt is sent with every request (incoming and outgoing), so every message is wrapped in it. Without a key no Bearer header is sent; requests time out after 20 s.
 
 Printed lines are recorded in an own-message tracker (256 entries, cleared on overflow) so the echoed chat line is not translated again.
 
@@ -99,13 +99,14 @@ dotnet test Babel14.Tests/Babel14.Tests.csproj    # 6 tests, all pass
 
 - **The API key is stored in plaintext** in the Dalamud plugin config on disk (normal for Dalamud plugins). Treat the config directory like a secrets store.
 - **Base URL is fully user-controlled**, so you can point at local or third-party OpenAI-compatible servers. Prefer HTTPS for remote endpoints: a mis-set URL sends chat text and your Bearer token to whatever host you configure, including LAN services on the game PC.
-- Chat text is sent to the configured LLM provider for translation.
+- Chat text is sent to the configured LLM provider for translation, and it is untrusted input: a player can type text aimed at the model rather than at you. The system prompt labels it as data and forbids acting on it, which resists the common cases but cannot guarantee a model obeys.
 
 ## Limits
 
 - Watched channels are config-file only, with no UI.
 - One translation at a time; lines arriving beyond 8 pending are skipped.
 - Empty or unchanged replies are suppressed, not printed.
+- Prompt injection is mitigated, not prevented: the guard is a prompt, and a model that ignores it will still answer instead of translating.
 - Not verified in game: behaviour is taken from the code and the offline tests, not from a live client.
 
 ## Layout
