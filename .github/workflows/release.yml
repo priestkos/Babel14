@@ -123,11 +123,13 @@ jobs:
             Set-GhOutput skip true
             exit 0
           }
+          $global:LASTEXITCODE = 0
 
           Write-Host "Next release version: $nextVersion (tag $tag)"
           Set-GhOutput expected_version $nextVersion
           Set-GhOutput release_tag $tag
           Set-GhOutput build_version $nextVersion
+          exit 0
 
       - name: Set up .NET
         if: steps.plan.outputs.skip != 'true'
@@ -143,6 +145,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $dest | Out-Null
           Invoke-WebRequest -UseBasicParsing -Uri 'https://goatcorp.github.io/dalamud-distrib/latest.zip' -OutFile dalamud.zip
           Expand-Archive -Path dalamud.zip -DestinationPath $dest -Force
+          exit 0
 
       - name: Build Babel14
         if: steps.plan.outputs.skip != 'true'
@@ -157,6 +160,8 @@ jobs:
               -p:AssemblyVersion=$version `
               -p:FileVersion=$version
           }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          exit 0
 
       - name: Publish GitHub Release
         if: steps.plan.outputs.skip != 'true'
@@ -227,4 +232,7 @@ jobs:
             Write-Host "Release $tag already exists; skipping."
             exit 0
           }
+          $global:LASTEXITCODE = 0
           gh release create $tag $zipFile.FullName --title $tag --generate-notes
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          exit 0
