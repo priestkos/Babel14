@@ -62,7 +62,9 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 
 ## Settings
 
-- **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model (default `openrouter/free`), API key; edits apply and save at once. An OpenRouter key (`sk-or-…`) is still required — the router picks a free model behind it.
+- **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model dropdown, API key; edits apply and save at once. An OpenRouter key (`sk-or-…`) is still required.
+  - **Model** is a dropdown of presets, each labelled with its price per 1M tokens: `openrouter/free` (default), `google/gemma-4-31b-it:free`, `nvidia/nemotron-3.5-lightning:free`, `inclusionai/ling-3.0-flash`, `z-ai/glm-5.3-flash`, **`qwen/qwen3.7-flash` (recommended)**, `mistralai/mistral-nemo`, `mistral-small-24b-instruct-2501`, `openai/gpt-5-nano`, `google/gemini-2.5-flash-lite`, `anthropic/claude-haiku-5.5`.
+  - **Custom** (last entry) reveals a free-text `Model slug` field, so any OpenRouter id — `vendor/model` or `vendor/model:free` — can be used; a config holding an id that is not a preset opens straight into that field.
 - **Languages** — `Translate incoming into` dropdown (default **Japanese**) and an editable known-language list (default **English**; the first entry is the default outgoing target, overridable per message). Every picker is a dropdown of the eight languages: Japanese, English, French, German, Spanish, Malay, Indonesian, Korean — Japanese and English first.
 - **Behaviour** — translate incoming chat.
 - **Test connection** — one fixed greeting through the model; needs a key.
@@ -104,6 +106,7 @@ dotnet test Babel14.Tests/Babel14.Tests.csproj    # 6 tests, all pass
 
 - Watched channels are config-file only, with no UI.
 - Only eight languages are offered in the pickers so far; the list is deliberately short and will grow.
+- Model prices in the dropdown are a snapshot of `openrouter.ai/api/v1/models` taken 2026-11-02 (USD per 1M tokens, prompt / completion) and are labels only — the plugin never bills, quotes or verifies them.
 - One translation at a time; lines arriving beyond 8 pending are skipped.
 - Empty or unchanged replies are suppressed, not printed.
 - Prompt injection is mitigated, not prevented: the guard is a prompt, and a model that ignores it will still answer instead of translating.

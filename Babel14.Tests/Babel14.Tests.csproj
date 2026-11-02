@@ -22,5 +22,6 @@
     <Compile Include="..\Services\LlmClient.cs" Link="LlmClient.cs" />
     <Compile Include="..\Services\TextMatch.cs" Link="TextMatch.cs" />
     <Compile Include="..\Services\Languages.cs" Link="Languages.cs" />
+    <Compile Include="..\Services\Models.cs" Link="Models.cs" />
   </ItemGroup>
 </Project>

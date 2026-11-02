@@ -25,6 +25,7 @@ public class BabelWindow : Window, IDisposable
     private string apiKeyBuffer = string.Empty;
     private string testResult = string.Empty;
     private bool testing;
+    private bool customModel;
 
     public BabelWindow(Plugin plugin, IPluginLog log) : base("Babel##BabelMainWindow")
     {
@@ -153,12 +154,31 @@ public class BabelWindow : Window, IDisposable
             dirty = true;
         }
 
-        var model = config.Model;
+        var pick = customModel || Models.IndexOf(config.Model) < 0
+            ? Models.CustomIndex
+            : Models.IndexOf(config.Model);
         ImGui.SetNextItemWidth(320);
-        if (ImGui.InputText("Model", ref model, 128))
+        if (ImGui.Combo("Model", ref pick, Models.Labels))
         {
-            config.Model = model;
-            dirty = true;
+            customModel = pick == Models.CustomIndex;
+            if (!customModel)
+            {
+                config.Model = Models.All[pick].Id;
+                dirty = true;
+            }
+        }
+
+        if (customModel || Models.IndexOf(config.Model) < 0)
+        {
+            var slug = config.Model;
+            ImGui.SetNextItemWidth(320);
+            if (ImGui.InputText("Model slug", ref slug, 128))
+            {
+                config.Model = slug.Trim();
+                dirty = true;
+            }
+
+            ImGui.TextDisabled("Any OpenRouter model id, e.g. vendor/model or vendor/model:free.");
         }
 
         // API key is kept in a UI-only buffer until edited; it is never re-displayed.
