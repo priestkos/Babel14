@@ -48,7 +48,6 @@ public sealed class ChatTranslator : IDisposable
             return;
 
         var text = msg.Message.TextValue;
-        var senderName = msg.Sender.TextValue;
         if (string.IsNullOrWhiteSpace(text) || ownMessages.Contains(text))
             return;
 
@@ -58,12 +57,11 @@ public sealed class ChatTranslator : IDisposable
         // Copy locals so they can cross into the background task; the message object
         // is only valid during this callback.
         Interlocked.Increment(ref pendingIncoming);
-        _ = Task.Run(() => TranslateIncomingAsync(msg.LogKind, senderName, text, lifetime.Token));
+        _ = Task.Run(() => TranslateIncomingAsync(msg.LogKind, text, lifetime.Token));
     }
 
     private async Task TranslateIncomingAsync(
         XivChatType type,
-        string senderName,
         string text,
         CancellationToken cancellationToken)
     {
@@ -95,7 +93,7 @@ public sealed class ChatTranslator : IDisposable
             chat.Print(new XivChatEntry
             {
                 Type = type,
-                Name = senderName,
+                Name = "Babel",
                 Message = translated,
             });
         }

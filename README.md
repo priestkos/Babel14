@@ -8,7 +8,7 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 
 ## What it does
 
-- **Incoming** — foreign chat in watched channels is translated to your language as one follow-up line in the same channel. A reply that is just the original text (same language, model passed it through) is suppressed, so nothing is duplicated.
+- **Incoming** — foreign chat in watched channels is translated to your language as one follow-up line in the same channel, attributed to `Babel` so it cannot be mistaken for the player speaking. A reply that is just the original text (same language, model passed it through) is suppressed, so nothing is duplicated.
 - **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat as an `Echo` line, and from the window also to the clipboard for pasting into the game chat box.
 - **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
@@ -20,7 +20,7 @@ Screenshots are mock-ups illustrating the UI, not captures from the live game.
 | --- | --- |
 | ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints an Echo line and copies the translation). |
 | ![Settings tab — LLM backend, languages, behaviour, test connection](docs/screenshots/02-settings-tab.png) | **Settings tab** — Base URL, Model, API Key, your language, known languages (+ Add / Remove), behaviour checkboxes, **Test connection**. |
-| ![Incoming chat — translation in the same channel](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s single translated follow-up in the same channel. |
+| ![Incoming chat — translation in the same channel](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s single translated follow-up in the same channel, shown as `Babel: …`. |
 | ![Slash command /babel send — local Echo output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Echo); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
 
 ### Mock-up video
