@@ -16,6 +16,15 @@ public class SystemPromptTests
     }
 
     [Fact]
+    public void PromptSetsTheFinalFantasyXivContext()
+    {
+        var prompt = LlmClient.SystemPrompt("English");
+
+        Assert.Contains("themes and tone of Final Fantasy XIV", prompt);
+        Assert.Contains("Final Fantasy XIV context", prompt);
+    }
+
+    [Fact]
     public void PromptMarksTheMessageAsDataNotInstructions()
     {
         var prompt = LlmClient.SystemPrompt("English");

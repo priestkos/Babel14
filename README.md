@@ -37,11 +37,11 @@ Same UI mock-ups as the screenshots above, animated in headless Chromium — **n
 | --- | --- |
 | `/babel` — toggle Babel window | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (window open); also [01](docs/screenshots/01-translate-tab.png), [02](docs/screenshots/02-settings-tab.png) |
 | Dalamud **Open Main UI** / **Open Config UI** plugin buttons (same toggle) | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (caption) |
-| **Translate** tab — multiline compose, target language field, **Translate & Copy to Clipboard**, status text | [01-translate-tab.png](docs/screenshots/01-translate-tab.png) |
+| **Translate** tab — multiline compose, target language dropdown, **Translate & Copy to Clipboard**, status text | [01-translate-tab.png](docs/screenshots/01-translate-tab.png) |
 | **`/babel send &lt;text&gt;`** — outgoing translate to first known language ≠ your language, local Echo | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
 | **Translate incoming chat** (watched `XivChatType` channels) | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); toggle in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **LLM backend** — Base URL, Model, API Key (password field; “API key is set…” hint) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
-| **Languages** — your language (incoming target), known-language list, **+ Add known language**, **Remove** | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
+| **Languages** — incoming target dropdown, known-language dropdown rows, **+ Add known language**, **Remove** | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **Test connection** (fixed greeting; OK / Failed result text) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **Watched channels** list (config file only, no in-game UI) | README / config — not pictured |
 
@@ -49,7 +49,7 @@ Same UI mock-ups as the screenshots above, animated in headless Chromium — **n
 
 Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
 
-Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that keeps tone, names and `<t>` emotes, asks for the translation only, and states that the player's message is untrusted data to translate rather than instructions to follow. That prompt is sent with every request (incoming and outgoing), so every message is wrapped in it. Without a key no Bearer header is sent; requests time out after 20 s.
+Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that sets the Final Fantasy XIV context (its themes and tone, its world, jobs, items and player slang), keeps tone, names and `<t>` emotes, asks for the translation only, and states that the player's message is untrusted data to translate rather than instructions to follow. That prompt is sent with every request (incoming and outgoing), so every message is wrapped in it. Without a key no Bearer header is sent; requests time out after 20 s.
 
 Printed lines are recorded in an own-message tracker (256 entries, cleared on overflow) so the echoed chat line is not translated again.
 
@@ -63,7 +63,7 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 ## Settings
 
 - **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model (default `openrouter/free`), API key; edits apply and save at once. An OpenRouter key (`sk-or-…`) is still required — the router picks a free model behind it.
-- **Languages** — your language (incoming target) and an editable known-language list (first entry is the default outgoing target, overridable per message).
+- **Languages** — `Translate incoming into` dropdown (default **Japanese**) and an editable known-language list (default **English**; the first entry is the default outgoing target, overridable per message). Every picker is a dropdown of the eight languages: Japanese, English, French, German, Spanish, Malay, Indonesian, Korean — Japanese and English first.
 - **Behaviour** — translate incoming chat.
 - **Test connection** — one fixed greeting through the model; needs a key.
 
@@ -103,6 +103,7 @@ dotnet test Babel14.Tests/Babel14.Tests.csproj    # 6 tests, all pass
 ## Limits
 
 - Watched channels are config-file only, with no UI.
+- Only eight languages are offered in the pickers so far; the list is deliberately short and will grow.
 - One translation at a time; lines arriving beyond 8 pending are skipped.
 - Empty or unchanged replies are suppressed, not printed.
 - Prompt injection is mitigated, not prevented: the guard is a prompt, and a model that ignores it will still answer instead of translating.

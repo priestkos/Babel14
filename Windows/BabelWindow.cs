@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Babel14.Services;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Game.Text;
@@ -38,6 +39,10 @@ public class BabelWindow : Window, IDisposable
 
     public void Dispose() { }
 
+    private string FirstKnownLanguage() =>
+        plugin.Configuration.KnownLanguages.FirstOrDefault(l => !string.IsNullOrWhiteSpace(l))
+        ?? Languages.DefaultKnown;
+
     public override void Draw()
     {
         if (!ImGui.BeginTabBar("##babelTabs"))
@@ -62,9 +67,12 @@ public class BabelWindow : Window, IDisposable
         ImGui.Spacing();
 
         var target = targetLanguage;
+        if (string.IsNullOrWhiteSpace(target))
+            target = FirstKnownLanguage();
+        var targetIndex = Languages.IndexOf(target);
         ImGui.SetNextItemWidth(220);
-        if (ImGui.InputText("Target language (blank = first known)", ref target, 64))
-            targetLanguage = target;
+        if (ImGui.Combo("Target language", ref targetIndex, Languages.All))
+            targetLanguage = Languages.All[targetIndex];
 
         ImGui.Spacing();
         var message = outgoingText;
@@ -173,22 +181,22 @@ public class BabelWindow : Window, IDisposable
         ImGui.Text("Languages");
         ImGui.Spacing();
 
-        var native = config.NativeLanguage;
+        var nativeIndex = Languages.IndexOf(config.NativeLanguage);
         ImGui.SetNextItemWidth(200);
-        if (ImGui.InputText("Your language (incoming translated to this)", ref native, 64))
+        if (ImGui.Combo("Translate incoming into", ref nativeIndex, Languages.All))
         {
-            config.NativeLanguage = native;
+            config.NativeLanguage = Languages.All[nativeIndex];
             dirty = true;
         }
 
         for (var i = 0; i < config.KnownLanguages.Count; i++)
         {
             ImGui.PushID(i);
-            var lang = config.KnownLanguages[i];
+            var langIndex = Languages.IndexOf(config.KnownLanguages[i]);
             ImGui.SetNextItemWidth(200);
-            if (ImGui.InputText("##lang", ref lang, 64))
+            if (ImGui.Combo("##lang", ref langIndex, Languages.All))
             {
-                config.KnownLanguages[i] = lang;
+                config.KnownLanguages[i] = Languages.All[langIndex];
                 dirty = true;
             }
             ImGui.SameLine();
@@ -203,7 +211,8 @@ public class BabelWindow : Window, IDisposable
         }
         if (ImGui.Button("+ Add known language"))
         {
-            config.KnownLanguages.Add(string.Empty);
+            config.KnownLanguages.Add(
+                Languages.All.FirstOrDefault(l => !config.KnownLanguages.Contains(l)) ?? Languages.All[0]);
             dirty = true;
         }
 

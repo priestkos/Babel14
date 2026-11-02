@@ -1,4 +1,5 @@
 using Dalamud.Configuration;
+using Babel14.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,14 +22,14 @@ public class Configuration : IPluginConfiguration
     public string ApiKey { get; set; } = string.Empty;
 
     // --- Translation behaviour ---
-    /// <summary>Your native language (what YOU read). Incoming foreign chat is translated to this.</summary>
-    public string NativeLanguage { get; set; } = "English";
+    /// <summary>Language incoming chat is translated into (what YOU read).</summary>
+    public string NativeLanguage { get; set; } = Languages.DefaultNative;
 
     /// <summary>Languages you can speak. Outgoing chat is translated into the chosen target.</summary>
     // Json.NET reuses an initialised list and appends the JSON items to it, so every
     // plugin load re-added the defaults (one "English" per session). Replace instead.
     [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
-    public List<string> KnownLanguages { get; set; } = new() { "English" };
+    public List<string> KnownLanguages { get; set; } = new() { Languages.DefaultKnown };
 
     /// <summary>Translate incoming chat messages.</summary>
     public bool TranslateIncoming { get; set; } = true;
