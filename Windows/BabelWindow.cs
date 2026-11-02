@@ -218,13 +218,6 @@ public class BabelWindow : Window, IDisposable
             dirty = true;
         }
 
-        var showOriginal = config.ShowOriginal;
-        if (ImGui.Checkbox("Show original text under translation", ref showOriginal))
-        {
-            config.ShowOriginal = showOriginal;
-            dirty = true;
-        }
-
         ImGui.Spacing();
         ImGui.BeginDisabled(testing);
         if (ImGui.Button("Test connection", new Vector2(140, 0)))

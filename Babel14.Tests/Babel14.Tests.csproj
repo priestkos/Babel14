@@ -20,5 +20,6 @@
   <ItemGroup>
     <Compile Include="..\Services\OwnMessageTracker.cs" Link="OwnMessageTracker.cs" />
     <Compile Include="..\Services\LlmClient.cs" Link="LlmClient.cs" />
+    <Compile Include="..\Services\TextMatch.cs" Link="TextMatch.cs" />
   </ItemGroup>
 </Project>

@@ -33,9 +33,6 @@ public class Configuration : IPluginConfiguration
     /// <summary>Translate incoming chat messages.</summary>
     public bool TranslateIncoming { get; set; } = true;
 
-    /// <summary>Show the original text under the translation.</summary>
-    public bool ShowOriginal { get; set; } = true;
-
     /// <summary>Chat channel IDs (XivChatType raw values) to watch for incoming messages.
     /// Defaults: Say(10), Shout(13), Yell(14), TellIncoming(58), Party(18), Alliance(20).</summary>
     [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]

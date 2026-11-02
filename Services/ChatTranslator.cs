@@ -86,21 +86,17 @@ public sealed class ChatTranslator : IDisposable
             if (cancellationToken.IsCancellationRequested)
                 return;
 
-            if (string.IsNullOrEmpty(translated) || translated == text)
+            if (string.IsNullOrEmpty(translated) || TextMatch.Same(translated, text))
                 return;
 
-            var line = config.ShowOriginal && !string.Equals(translated, text, StringComparison.OrdinalIgnoreCase)
-                ? $"{translated}\n[babel {senderName}: {text}]"
-                : translated;
-
-            // Mark every form we may see echoed back through ChatMessage.
-            ownMessages.MarkAll(translated, line);
+            // Mark the printed line so its echo through ChatMessage is not translated again.
+            ownMessages.Mark(translated);
 
             chat.Print(new XivChatEntry
             {
                 Type = type,
                 Name = senderName,
-                Message = line,
+                Message = translated,
             });
         }
         catch (OperationCanceledException)
