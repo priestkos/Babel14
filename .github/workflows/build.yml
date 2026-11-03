@@ -47,4 +47,4 @@ jobs:
             10.0.x
 
       - name: Run the unit tests
-        run: dotnet run --project Babel14.Tests/Babel14.Tests.csproj -c Release
+        run: dotnet test Babel14.Tests/Babel14.Tests.csproj -c Release
