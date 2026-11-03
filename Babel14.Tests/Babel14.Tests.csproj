@@ -23,5 +23,6 @@
     <Compile Include="..\Services\TextMatch.cs" Link="TextMatch.cs" />
     <Compile Include="..\Services\Languages.cs" Link="Languages.cs" />
     <Compile Include="..\Services\Models.cs" Link="Models.cs" />
+    <Compile Include="..\Services\ErrorThrottle.cs" Link="ErrorThrottle.cs" />
   </ItemGroup>
 </Project>

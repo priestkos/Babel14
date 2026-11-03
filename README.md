@@ -93,7 +93,7 @@ dotnet build -c Release    # zip in bin/Release/Babel14/latest.zip
 `OwnMessageTracker` is tested offline without Dalamud (the test project links `Services/OwnMessageTracker.cs`): exact matches, no insert on lookup, both printed forms marked but not the original, overflow keeps only the latest.
 
 ```
-dotnet test Babel14.Tests/Babel14.Tests.csproj    # 6 tests, all pass
+dotnet test Babel14.Tests/Babel14.Tests.csproj    # 35 tests, all pass
 ```
 
 ## Security

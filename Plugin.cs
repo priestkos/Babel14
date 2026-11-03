@@ -99,11 +99,11 @@ public sealed class Plugin : IDalamudPlugin
             var translated = await Translator.TranslateOutgoingAsync(text, target).ConfigureAwait(false);
             Translator.MarkOwn(translated);
 
-            ChatGui.Print(new XivChatEntry
+            await Framework.RunOnFrameworkThread(() => ChatGui.Print(new XivChatEntry
             {
                 Type = XivChatType.Echo,
                 Message = translated,
-            });
+            })).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -112,7 +112,7 @@ public sealed class Plugin : IDalamudPlugin
         catch (Exception ex)
         {
             Log.Error(ex, "Babel: /babel send failed");
-            ChatGui.PrintError($"[babel] {ex.Message}");
+            await Framework.RunOnFrameworkThread(() => ChatGui.PrintError($"[babel] {ex.Message}")).ConfigureAwait(false);
         }
     }
 }

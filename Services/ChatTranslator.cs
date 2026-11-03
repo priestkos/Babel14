@@ -20,6 +20,7 @@ public sealed class ChatTranslator : IDisposable
     private readonly OwnMessageTracker ownMessages = new();
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly CancellationTokenSource lifetime = new();
+    private readonly ErrorThrottle errorThrottle = new(TimeSpan.FromSeconds(30));
     private int pendingIncoming;
     private const int MaxPendingIncoming = 8;
 
@@ -41,7 +42,8 @@ public sealed class ChatTranslator : IDisposable
     private void OnChatMessage(IHandleableChatMessage msg)
     {
         var config = plugin.Configuration;
-        if (!config.TranslateIncoming || msg.IsHandled)
+        // No key: every request would just 401, so do not send chat out at all.
+        if (!config.TranslateIncoming || msg.IsHandled || string.IsNullOrWhiteSpace(config.ApiKey))
             return;
 
         if (!config.WatchedChannels.Contains((int)(ushort)msg.LogKind))
@@ -57,8 +59,10 @@ public sealed class ChatTranslator : IDisposable
 
         // Copy locals so they can cross into the background task; the message object
         // is only valid during this callback.
+        var type = msg.LogKind;
+        var token = lifetime.Token;
         Interlocked.Increment(ref pendingIncoming);
-        _ = Task.Run(() => TranslateIncomingAsync(msg.LogKind, senderName, text, lifetime.Token));
+        _ = Task.Run(() => TranslateIncomingAsync(type, senderName, text, token));
     }
 
     private async Task TranslateIncomingAsync(
@@ -92,14 +96,15 @@ public sealed class ChatTranslator : IDisposable
             // Mark the printed line so its echo through ChatMessage is not translated again.
             ownMessages.Mark(translated);
 
-            chat.Print(new XivChatEntry
+            var entry = new XivChatEntry
             {
                 Type = type,
                 Name = string.IsNullOrWhiteSpace(senderName) ? "(Babel)" : $"(Babel) {senderName}",
                 Message = translated,
-            });
+            };
+            await Plugin.Framework.RunOnFrameworkThread(() => chat.Print(entry)).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // Shutting down.
         }
@@ -110,8 +115,11 @@ public sealed class ChatTranslator : IDisposable
         catch (Exception ex)
         {
             log.Error(ex, "Babel: incoming translation failed");
-            if (!cancellationToken.IsCancellationRequested)
-                chat.PrintError($"[babel] translation failed: {ex.Message}");
+            var line = cancellationToken.IsCancellationRequested
+                ? null
+                : errorThrottle.Next($"[babel] translation failed: {ex.Message}", DateTime.UtcNow);
+            if (line != null)
+                await Plugin.Framework.RunOnFrameworkThread(() => chat.PrintError(line)).ConfigureAwait(false);
         }
         finally
         {

@@ -101,27 +101,32 @@ public class BabelWindow : Window, IDisposable
         var config = plugin.Configuration;
         sending = true;
         sendStatus = "Translating...";
+        var sent = outgoingText;
         try
         {
             var target = string.IsNullOrWhiteSpace(targetLanguage)
                 ? config.KnownLanguages.FirstOrDefault(l => !string.IsNullOrWhiteSpace(l)) ?? "English"
                 : targetLanguage.Trim();
 
-            var translated = await plugin.Translator.TranslateOutgoingAsync(outgoingText.Trim(), target)
+            var translated = await plugin.Translator.TranslateOutgoingAsync(sent.Trim(), target)
                 .ConfigureAwait(false);
             plugin.Translator.MarkOwn(translated);
 
-            Plugin.ChatGui.Print(new XivChatEntry
+            // Chat and ImGui must be touched on the framework/UI thread.
+            await Plugin.Framework.Run(() =>
             {
-                Type = XivChatType.Echo,
-                Message = translated,
-            });
-
-            // ImGui must be touched on the framework/UI thread.
-            await Plugin.Framework.Run(() => ImGui.SetClipboardText(translated)).ConfigureAwait(false);
+                Plugin.ChatGui.Print(new XivChatEntry
+                {
+                    Type = XivChatType.Echo,
+                    Message = translated,
+                });
+                ImGui.SetClipboardText(translated);
+                // Keep anything typed while the translation was running.
+                if (outgoingText == sent)
+                    outgoingText = string.Empty;
+            }).ConfigureAwait(false);
 
             sendStatus = $"Copied to clipboard & printed locally: {translated}";
-            outgoingText = string.Empty;
         }
         catch (OperationCanceledException)
         {
