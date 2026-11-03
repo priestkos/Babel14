@@ -12,7 +12,7 @@ namespace Babel14.Services;
 /// <summary>Minimal OpenAI-compatible chat-completions client.</summary>
 public sealed class LlmClient : IDisposable
 {
-    private readonly HttpClient http = new() { Timeout = TimeSpan.FromSeconds(20) };
+    private readonly HttpClient http;
     private readonly JsonSerializerOptions jsonOpts = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -21,6 +21,13 @@ public sealed class LlmClient : IDisposable
 
     private string baseUrl = "https://openrouter.ai/api/v1";
     private string apiKey = string.Empty;
+
+    // The handler parameter lets offline tests stub the HTTP layer.
+    public LlmClient(HttpMessageHandler? handler = null)
+    {
+        http = handler == null ? new HttpClient() : new HttpClient(handler);
+        http.Timeout = TimeSpan.FromSeconds(20);
+    }
 
     public void Configure(string baseUrl, string apiKey)
     {
@@ -84,15 +91,42 @@ public sealed class LlmClient : IDisposable
             Encoding.UTF8,
             "application/json");
 
-        using var resp = await http.SendAsync(request, cancellationToken).ConfigureAwait(false);
-        var body = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            using var resp = await http.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var body = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-        if (!resp.IsSuccessStatusCode)
-            throw new HttpRequestException($"LLM API {(int)resp.StatusCode}: {Truncate(body, 300)}");
+            if (!resp.IsSuccessStatusCode)
+                throw new HttpRequestException($"LLM API {(int)resp.StatusCode}: {Truncate(body, 300)}");
 
+            return ParseReply(body);
+        }
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            // HttpClient.Timeout surfaces as a cancellation the caller never requested.
+            throw new TimeoutException($"LLM request timed out after {http.Timeout.TotalSeconds:0} s.", ex);
+        }
+    }
+
+    private static string ParseReply(string body)
+    {
         using var doc = JsonDocument.Parse(body);
-        var text = doc.RootElement
-            .GetProperty("choices")[0]
+        var root = doc.RootElement;
+        // Some providers answer 200 with an error object instead of choices.
+        if (root.TryGetProperty("error", out var error))
+        {
+            var detail = error.ValueKind == JsonValueKind.Object && error.TryGetProperty("message", out var m)
+                ? m.ToString()
+                : error.ToString();
+            throw new HttpRequestException($"LLM API error: {Truncate(detail, 300)}");
+        }
+
+        if (!root.TryGetProperty("choices", out var choices)
+            || choices.ValueKind != JsonValueKind.Array
+            || choices.GetArrayLength() == 0)
+            throw new HttpRequestException("LLM API: no choices in response.");
+
+        var text = choices[0]
             .GetProperty("message")
             .GetProperty("content")
             .GetString();
