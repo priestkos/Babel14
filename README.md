@@ -6,6 +6,8 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 
 `/babel` · Dalamud API 15 · .NET 10
 
+> **No support will be provided. This software is to be used as is, without warranty of any kind.**
+
 ## What it does
 
 - **Incoming** — foreign chat in watched channels is translated to your language as one follow-up line in the same channel, attributed to `(Babel) <sender>` so it cannot be mistaken for the player speaking. A reply that is just the original text (same language, model passed it through) is suppressed, so nothing is duplicated.
