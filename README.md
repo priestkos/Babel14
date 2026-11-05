@@ -49,7 +49,7 @@ Same UI mock-ups as the screenshots above, sequenced in headless Chromium (~**15
 
 ## How it works
 
-Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say 10, Shout 13, Yell 14, TellIncoming 58, Party 18, Alliance 20) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
+Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say, Yell, Shout, incoming Tell, Party and cross-world Party, Alliance, Novice Network, Linkshells 1–8 and Cross-world Linkshells 1–8; a v1 config is reset to this list once on load, because its ids were mislabelled) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
 
 Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that sets the Final Fantasy XIV context (its themes and tone, its world, jobs, items and player slang), keeps tone, names and `<t>` emotes, asks for the translation only, and states that the player's message is untrusted data to translate rather than instructions to follow. That prompt is sent with every request (incoming and outgoing), so every message is wrapped in it. Without a key no Bearer header is sent; requests time out after 20 s.
 

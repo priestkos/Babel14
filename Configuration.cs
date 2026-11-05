@@ -1,5 +1,6 @@
 using Dalamud.Configuration;
 using Babel14.Services;
+using Dalamud.Game.Text;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Babel14;
 [Serializable]
 public class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
 
     // --- LLM backend ---
     /// <summary>Base URL of an OpenAI-compatible chat completions endpoint.</summary>
@@ -34,10 +35,21 @@ public class Configuration : IPluginConfiguration
     /// <summary>Translate incoming chat messages.</summary>
     public bool TranslateIncoming { get; set; } = true;
 
-    /// <summary>Chat channel IDs (XivChatType raw values) to watch for incoming messages.
-    /// Defaults: Say(10), Shout(13), Yell(14), TellIncoming(58), Party(18), Alliance(20).</summary>
+    /// <summary>Chat channel IDs (XivChatType raw values) to watch for incoming messages.</summary>
     [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
-    public List<int> WatchedChannels { get; set; } = new() { 10, 13, 14, 58, 18, 20 };
+    public List<int> WatchedChannels { get; set; } = DefaultChannels();
+
+    // Named, not numbered: the v1 list was hand-typed ids that meant TellIncoming/Party/SystemError/LS3/LS5.
+    public static List<int> DefaultChannels() => new()
+    {
+        (int)XivChatType.Say, (int)XivChatType.Yell, (int)XivChatType.Shout, (int)XivChatType.TellIncoming,
+        (int)XivChatType.Party, (int)XivChatType.CrossParty, (int)XivChatType.Alliance, (int)XivChatType.NoviceNetwork,
+        (int)XivChatType.Ls1, (int)XivChatType.Ls2, (int)XivChatType.Ls3, (int)XivChatType.Ls4,
+        (int)XivChatType.Ls5, (int)XivChatType.Ls6, (int)XivChatType.Ls7, (int)XivChatType.Ls8,
+        (int)XivChatType.CrossLinkShell1, (int)XivChatType.CrossLinkShell2, (int)XivChatType.CrossLinkShell3,
+        (int)XivChatType.CrossLinkShell4, (int)XivChatType.CrossLinkShell5, (int)XivChatType.CrossLinkShell6,
+        (int)XivChatType.CrossLinkShell7, (int)XivChatType.CrossLinkShell8,
+    };
 
     public void Save() => Plugin.PluginInterface.SavePluginConfig(this);
 }

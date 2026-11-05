@@ -32,6 +32,13 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        // v1 saved mislabelled channel ids (and duplicated them); the list has no UI, so it only ever held defaults.
+        if (Configuration.Version < 2)
+        {
+            Configuration.WatchedChannels = Configuration.DefaultChannels();
+            Configuration.Version = 2;
+            Configuration.Save();
+        }
 
         Llm = new LlmClient();
         Llm.Configure(Configuration.ApiBaseUrl, Configuration.ApiKey);
