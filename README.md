@@ -22,12 +22,12 @@ Screenshots are mock-ups illustrating the UI, not captures from the live game.
 | --- | --- |
 | ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints an Echo line and copies the translation). |
 | ![Settings tab — LLM backend, languages, behaviour, test connection](docs/screenshots/02-settings-tab.png) | **Settings tab** — Base URL, Model, API Key, your language, known languages (+ Add / Remove), behaviour checkboxes, **Test connection**. |
-| ![Incoming chat — translation in the same channel](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then the plugin’s single translated follow-up in the same channel, shown as `(Babel) Sender: …`. |
-| ![Slash command /babel send — local Echo output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — command entry and translated line printed locally (Echo); **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
+| ![Incoming chat — (Babel) follow-up in the same channel](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then a single follow-up in the same channel as `(Babel) Sender: …` (not a duplicate of the original line). |
+| ![Slash command /babel send — local Echo output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — Japanese outgoing text translated to your first known language ≠ native, printed locally as Echo; **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
 
 ### Mock-up video
 
-Same UI mock-ups as the screenshots above, animated in headless Chromium — **not a real in-game capture**.
+Same UI mock-ups as the screenshots above, sequenced in headless Chromium (~**15 s**, 1280×720) with on-screen beat labels and a gold **Mock-up** banner — **not a real in-game capture**.
 
 ![Mock-up walkthrough preview](docs/videos/mockup-walkthrough.gif)
 

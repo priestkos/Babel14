@@ -3,20 +3,280 @@
 <head>
   <meta charset="UTF-8" />
   <title>Babel14 mock-up walkthrough</title>
-  <link rel="stylesheet" href="walkthrough.css" />
+  <link rel="stylesheet" href="../../screenshots/src/common.css" />
+  <style>
+    html,
+    body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .beat-label {
+      position: absolute;
+      top: 88px;
+      left: 24px;
+      z-index: 8000;
+      padding: 10px 18px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.72);
+      border-left: 4px solid #f5c842;
+      border-radius: 4px;
+      text-shadow: 0 1px 4px #000;
+      max-width: 560px;
+      line-height: 1.35;
+    }
+
+    .video-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 9000;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+      text-shadow: 0 1px 4px #000;
+    }
+
+    .mockup-banner {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+    }
+
+    .s1 .imgui-window {
+      left: 420px;
+      top: 120px;
+      width: 440px;
+    }
+
+    .s2 .imgui-window {
+      left: 340px;
+      top: 40px;
+      width: 600px;
+    }
+
+    .s2 .test-result {
+      color: #b8d4a8;
+      margin-top: 8px;
+      line-height: 1.45;
+    }
+
+    .s2 .model-input {
+      font-size: 11px;
+    }
+
+    .s3 .chat-log {
+      bottom: 140px;
+    }
+
+    .s3 .chat-babel-line {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    .s4 .command-bar {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 640px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid #505050;
+      padding: 8px 12px;
+      font-family: Consolas, monospace;
+      font-size: 14px;
+      color: #e0e0e0;
+    }
+
+    .s4 .cmd-prefix {
+      color: #888;
+    }
+
+    .s4 .chat-log {
+      bottom: 120px;
+    }
+
+    .s4 .imgui-window {
+      left: 32px;
+      top: 48px;
+      width: 360px;
+    }
+
+    .s4 .chat-echo-line {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
+    #translate-status {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    #btn-translate {
+      transition: filter 0.08s ease, outline 0.08s ease;
+    }
+
+    #mock-cursor {
+      position: fixed;
+      left: 640px;
+      top: 400px;
+      z-index: 9500;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #mock-cursor.visible {
+      opacity: 1;
+    }
+
+    #mock-cursor .cursor-shape {
+      position: absolute;
+      transform: translate(-2px, -2px);
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+    }
+  </style>
 </head>
 <body>
-  <div id="disclaimer" class="disclaimer-overlay">
-    <div class="disclaimer-box">
-      <h1>UI mock-up</h1>
-      <p>Not a real in-game capture. Illustrates the Babel plugin UI and chat behaviour only.</p>
+  <div class="mockup-banner">Mock-up</div>
+
+  <div id="scene1" class="scene s1">
+    <div class="scene">
+      <div class="beat-label">Translate tab</div>
+      <div class="imgui-window">
+        <div class="imgui-titlebar">Babel</div>
+        <div class="imgui-body">
+          <div class="tab-bar">
+            <div class="tab active">Translate</div>
+            <div class="tab">Settings</div>
+          </div>
+          <p class="label-hint">
+            Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
+          </p>
+          <div class="field-row">
+            <span class="field-label">Target language</span>
+            <div class="input">Japanese</div>
+          </div>
+          <div class="field-row">
+            <div class="input-multiline">Looking for a tank for this duty, please join if you can.</div>
+          </div>
+          <div id="btn-translate" class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
+          <p id="translate-status" class="status-ok">
+            Copied to clipboard &amp; printed locally: このダンジョンのタンクを探しています。参加できる方はどうぞ。
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div id="caption" class="caption-bar" aria-live="polite"></div>
+  <div id="scene2" class="scene s2">
+    <div class="scene">
+      <div class="beat-label">Settings — LLM &amp; languages</div>
+      <div class="imgui-window">
+        <div class="imgui-titlebar">Babel</div>
+        <div class="imgui-body">
+          <div class="tab-bar">
+            <div class="tab">Translate</div>
+            <div class="tab active">Settings</div>
+          </div>
+          <p class="section-title">LLM backend (OpenAI-compatible chat completions)</p>
+          <div class="field-row">
+            <span class="field-label">Base URL</span>
+            <div class="input wide">https://openrouter.ai/api/v1</div>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Model</span>
+            <div class="input wide model-input">openrouter/free - free (rotates between free models)</div>
+          </div>
+          <p class="status-muted" style="margin-bottom: 6px;">API key is set. Type a new key to replace it.</p>
+          <div class="field-row">
+            <span class="field-label">API Key</span>
+            <div class="input wide" style="letter-spacing: 2px; color: #888;">••••••••••••••••</div>
+          </div>
+          <hr class="separator" />
+          <p class="section-title">Languages</p>
+          <div class="field-row">
+            <span class="field-label">Translate incoming into</span>
+            <div class="input input-med">Japanese</div>
+          </div>
+          <div class="lang-row">
+            <div class="input input-med">English</div>
+            <div class="btn btn-sm">Remove</div>
+          </div>
+          <div class="btn btn-sm" style="width: auto; margin-top: 4px;">+ Add known language</div>
+          <hr class="separator" />
+          <label class="checkbox-row"><input type="checkbox" checked /> Translate incoming chat</label>
+          <div style="margin-top: 12px;">
+            <div id="btn-test" class="btn btn-sm btn-primary" style="width: 140px;">Test connection</div>
+          </div>
+          <p id="test-result" class="test-result">OK - model replied: Hello, nice to meet you!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scene3" class="scene s3">
+    <div class="scene">
+      <div class="beat-label">Incoming — (Babel) follow-up</div>
+      <div class="chat-log">
+        <div class="chat-line chat-party">
+          <span class="chat-name">Example Character</span> says, "準備はいい？"
+        </div>
+        <div id="babel-line" class="chat-line chat-babel chat-babel-line">
+          <span class="chat-name">(Babel) Example Character</span>: Are you ready?
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scene4" class="scene s4">
+    <div class="scene">
+      <div class="beat-label">/babel send · local Echo</div>
+      <div class="chat-log">
+        <div id="echo-line" class="chat-line chat-echo chat-echo-line">Hello, nice to meet you!</div>
+      </div>
+      <div class="command-bar">
+        <span class="cmd-prefix">&gt; </span>/babel send <span id="cmd-text"></span><span id="cmd-caret">▌</span>
+      </div>
+      <div class="imgui-window">
+        <div class="imgui-titlebar">Babel</div>
+        <div class="imgui-body">
+          <div class="tab-bar">
+            <div class="tab active">Translate</div>
+            <div class="tab">Settings</div>
+          </div>
+          <p class="label-hint" style="font-size: 12px;">
+            /babel toggles this window. Dalamud plugin bar buttons also open it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="video-caption" id="caption">Babel14 — mock-up walkthrough</div>
 
   <div id="mock-cursor" aria-hidden="true">
-    <div class="click-ripple"></div>
     <div class="cursor-shape">
       <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -30,291 +290,178 @@
     </div>
   </div>
 
-  <!-- Scene 1: Translate tab -->
-  <div id="scene-translate" class="scene scene-panel scene-translate">
-    <div class="imgui-window">
-      <div class="imgui-titlebar">Babel</div>
-      <div class="imgui-body">
-        <div class="tab-bar">
-          <div class="tab active">Translate</div>
-          <div class="tab">Settings</div>
-        </div>
-        <p class="label-hint">
-          Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
-        </p>
-        <div class="field-row">
-          <span class="field-label">Target language (blank = first known)</span>
-          <div class="input">Japanese</div>
-        </div>
-        <div class="field-row">
-          <div class="input-multiline">Looking for a tank for this duty, please join if you can.</div>
-        </div>
-        <div id="btn-translate" class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
-        <p id="translate-status" class="status-ok">
-          Copied to clipboard &amp; printed locally: このダンジョンのタンクを探しています。参加できる方はどうぞ。
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scene 2: Settings tab (tab switch + interactions) -->
-  <div id="scene-settings" class="scene scene-panel scene-settings">
-    <div class="imgui-window">
-      <div class="imgui-titlebar">Babel</div>
-      <div class="imgui-body">
-        <div class="tab-bar">
-          <div class="tab" data-tab="translate">Translate</div>
-          <div id="tab-settings" class="tab" data-tab="settings">Settings</div>
-        </div>
-        <div class="tab-translate-content">
-          <p class="label-hint">Switch to Settings to configure the LLM backend and languages.</p>
-        </div>
-        <div class="tab-settings-content">
-          <p class="section-title">LLM backend (OpenAI-compatible chat completions)</p>
-          <div class="field-row">
-            <span class="field-label">Base URL</span>
-            <div class="input wide">https://api.openai.com/v1</div>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Model</span>
-            <div class="input wide">gpt-4o-mini</div>
-          </div>
-          <p class="status-muted" style="margin-bottom: 6px;">API key is set. Type a new key to replace it.</p>
-          <div class="field-row">
-            <span class="field-label">API Key</span>
-            <div class="input wide" style="letter-spacing: 2px; color: #888;">••••••••••••••••</div>
-          </div>
-          <hr class="separator" />
-          <p class="section-title">Languages</p>
-          <div class="field-row">
-            <span class="field-label">Your language (incoming translated to this)</span>
-            <div class="input input-med">English</div>
-          </div>
-          <div class="lang-row">
-            <div class="input input-med">English</div>
-            <div class="btn btn-sm">Remove</div>
-          </div>
-          <div class="lang-row">
-            <div class="input input-med">Japanese</div>
-            <div class="btn btn-sm">Remove</div>
-          </div>
-          <div class="btn btn-sm" style="width: auto; margin-top: 4px;">+ Add known language</div>
-          <hr class="separator" />
-          <label class="checkbox-row"><input type="checkbox" checked /> Translate incoming chat</label>
-          <label id="cb-original" class="checkbox-row"><input id="cb-original-input" type="checkbox" checked /> Show original text under translation</label>
-          <div style="margin-top: 12px;">
-            <div id="btn-test" class="btn btn-sm btn-primary" style="width: 140px;">Test connection</div>
-          </div>
-          <p id="test-result" class="test-result">OK - model replied: Hello, nice to meet you!</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scene 3: Incoming chat -->
-  <div id="scene-incoming" class="scene scene-panel scene-incoming">
-    <div class="chat-log">
-      <div class="chat-line chat-party">
-        <span class="chat-name">Example Character</span> says, "準備はいい？"
-      </div>
-      <div class="chat-line chat-party chat-line-translation">
-        <span class="chat-name">Example Character</span> says, "Are you ready?"
-        <br /><span class="chat-original">[babel Example Character: 準備はいい？]</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scene 4: /babel send -->
-  <div id="scene-send" class="scene scene-panel scene-send">
-    <div class="chat-log">
-      <div class="chat-line chat-say chat-line-out">
-        You say, "Bonjour, enchanté de vous rencontrer."
-      </div>
-    </div>
-    <div class="command-bar">
-      <span class="cmd-prefix">&gt; </span>/babel send <span id="cmd-typed" class="cmd-text"></span><span id="cmd-cursor">▌</span>
-    </div>
-    <div class="imgui-window">
-      <div class="imgui-titlebar">Babel</div>
-      <div class="imgui-body">
-        <div class="tab-bar">
-          <div class="tab active">Translate</div>
-          <div class="tab">Settings</div>
-        </div>
-        <p class="label-hint" style="font-size: 12px;">
-          /babel toggles this window. Dalamud plugin bar buttons also open it.
-        </p>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const scenes = [
+      {
+        id: "scene1",
+        start: 0,
+        end: 3.6,
+        caption: "Translate tab — compose, target language, Translate & Copy to Clipboard",
+      },
+      {
+        id: "scene2",
+        start: 3.2,
+        end: 7.4,
+        caption: "Settings — OpenRouter backend, languages, Translate incoming chat, Test connection",
+      },
+      {
+        id: "scene3",
+        start: 7.0,
+        end: 10.8,
+        caption: "Incoming chat — foreign line, then (Babel) sender follow-up in the same channel",
+      },
+      {
+        id: "scene4",
+        start: 10.4,
+        end: 15.0,
+        caption: "/babel send — outgoing translate to local Echo; /babel toggles the window",
+      },
+    ];
 
-    function easeInOutCubic(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const SEND_TEXT = "こんにちは、はじめまして";
+
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
     }
 
-    const cursorEl = document.getElementById("mock-cursor");
-    const rippleEl = cursorEl.querySelector(".click-ripple");
-    let cursorX = 640;
-    let cursorY = 400;
-
-    function setCursorPos(x, y) {
-      cursorX = x;
-      cursorY = y;
-      cursorEl.style.left = `${x}px`;
-      cursorEl.style.top = `${y}px`;
+    function clamp(v, lo, hi) {
+      return Math.min(hi, Math.max(lo, v));
     }
 
-    async function moveCursorTo(x, y, durationMs = 680) {
-      const startX = cursorX;
-      const startY = cursorY;
-      const start = performance.now();
-      return new Promise((resolve) => {
-        function frame(now) {
-          const t = Math.min(1, (now - start) / durationMs);
-          const e = easeInOutCubic(t);
-          setCursorPos(startX + (x - startX) * e, startY + (y - startY) * e);
-          if (t < 1) requestAnimationFrame(frame);
-          else resolve();
-        }
-        requestAnimationFrame(frame);
-      });
-    }
-
-    function elementClickPoint(el, ox = 0.55, oy = 0.5) {
-      const r = el.getBoundingClientRect();
-      return { x: r.left + r.width * ox, y: r.top + r.height * oy };
-    }
-
-    async function moveCursorToElement(el, ox, oy) {
-      const { x, y } = elementClickPoint(el, ox, oy);
-      await moveCursorTo(x, y);
-    }
-
-    async function playClickRipple() {
-      rippleEl.classList.remove("play");
-      void rippleEl.offsetWidth;
-      rippleEl.classList.add("play");
-      cursorEl.classList.add("clicking");
-      await sleep(110);
-      cursorEl.classList.remove("clicking");
-      await sleep(280);
-      rippleEl.classList.remove("play");
-    }
-
-    async function clickTarget(el, { pressClass = "ui-click-press", tabClass = null } = {}) {
-      await moveCursorToElement(el);
-      await sleep(90);
-      await playClickRipple();
-      if (tabClass) el.classList.add(tabClass);
-      else if (pressClass) el.classList.add(pressClass);
-      await sleep(140);
-      if (tabClass) el.classList.remove(tabClass);
-      else if (pressClass) el.classList.remove(pressClass);
-    }
-
-    function setCaption(text) {
-      const el = document.getElementById("caption");
-      el.textContent = text;
-      el.classList.add("visible");
-    }
-
-    function hideCaption() {
-      document.getElementById("caption").classList.remove("visible");
-    }
-
-    async function transitionToScene(id) {
-      const next = document.getElementById(id);
-      const current = document.querySelector(".scene-panel.active");
-      if (current && current !== next) {
-        current.classList.add("scene-leaving");
-        await sleep(480);
-        current.classList.remove("active", "scene-leaving");
+    function sceneMotion(t, start, end) {
+      const fade = 0.38;
+      let opacity = 0;
+      let ty = 12;
+      if (t < start) {
+        opacity = 0;
+        ty = 12;
+      } else if (t > end) {
+        opacity = 0;
+        ty = -8;
+      } else if (t < start + fade) {
+        const p = (t - start) / fade;
+        const e = easeOutCubic(p);
+        opacity = e;
+        ty = 12 * (1 - e);
+      } else if (t > end - fade) {
+        const p = (end - t) / fade;
+        const e = easeOutCubic(p);
+        opacity = e;
+        ty = -8 * (1 - e);
+      } else {
+        opacity = 1;
+        ty = 0;
       }
-      next.classList.add("active");
-      await sleep(520);
+      return { opacity, ty };
     }
 
-    async function typeCommand(text, charMs = 50) {
-      const target = document.getElementById("cmd-typed");
-      target.textContent = "";
-      for (const ch of text) {
-        target.textContent += ch;
-        await sleep(charMs);
+    function lerp(a, b, p) {
+      return a + (b - a) * p;
+    }
+
+    window.seekWalkthrough = function (t) {
+      for (const s of scenes) {
+        const el = document.getElementById(s.id);
+        const { opacity, ty } = sceneMotion(t, s.start, s.end);
+        el.style.opacity = String(opacity);
+        el.style.transform = `translateY(${ty}px)`;
       }
-      document.getElementById("cmd-cursor").style.opacity = "0";
-    }
 
-    window.runWalkthrough = async () => {
-      setCursorPos(640, 400);
-      cursorEl.classList.add("visible");
+      let cap = "Babel14 — mock-up walkthrough";
+      for (const s of scenes) {
+        if (t >= s.start && t <= s.end) cap = s.caption;
+      }
+      document.getElementById("caption").textContent = cap;
 
-      const disclaimer = document.getElementById("disclaimer");
-      disclaimer.classList.add("visible");
-      await sleep(3400);
-      disclaimer.classList.remove("visible");
-      await sleep(550);
-
-      await transitionToScene("scene-translate");
-      setCaption("Translate tab — compose, target language, Translate & Copy to Clipboard");
-      await sleep(2000);
-
+      const s1 = sceneMotion(t, scenes[0].start, scenes[0].end);
+      const status = document.getElementById("translate-status");
       const btn = document.getElementById("btn-translate");
-      await clickTarget(btn, { pressClass: "btn-pressed" });
-      document.getElementById("translate-status").classList.add("visible");
-      await sleep(3800);
+      if (s1.opacity > 0.05) {
+        const clickPulse = t >= 1.15 && t <= 1.45 ? 1 - Math.abs(t - 1.3) / 0.15 : 0;
+        btn.style.filter = clickPulse > 0 ? `brightness(${1 + 0.12 * clickPulse})` : "";
+        btn.style.outline = clickPulse > 0 ? "1px solid #8ab0e0" : "";
+        const showStatus = clamp((t - 1.55) / 0.35, 0, 1);
+        const e = easeOutCubic(showStatus);
+        status.style.opacity = String(e);
+        status.style.transform = `translateY(${4 * (1 - e)}px)`;
+      } else {
+        btn.style.filter = "";
+        btn.style.outline = "";
+        status.style.opacity = "0";
+      }
 
-      await transitionToScene("scene-settings");
-      setCaption("Settings — LLM backend, languages, behaviour, Test connection");
-      await sleep(1600);
+      const s2 = sceneMotion(t, scenes[1].start, scenes[1].end);
+      const testResult = document.getElementById("test-result");
+      if (s2.opacity > 0.05) {
+        const showTest = clamp((t - 5.6) / 0.35, 0, 1);
+        testResult.style.opacity = String(easeOutCubic(showTest));
+      } else {
+        testResult.style.opacity = "0";
+      }
 
-      const tabSettings = document.getElementById("tab-settings");
-      await clickTarget(tabSettings, { tabClass: "tab-clicked" });
-      document.getElementById("scene-settings").classList.add("show-settings");
-      await sleep(2400);
+      const s3 = sceneMotion(t, scenes[2].start, scenes[2].end);
+      const babelLine = document.getElementById("babel-line");
+      if (s3.opacity > 0.05) {
+        const showBabel = clamp((t - 8.0) / 0.4, 0, 1);
+        const e = easeOutCubic(showBabel);
+        babelLine.style.opacity = String(e);
+        babelLine.style.transform = `translateY(${6 * (1 - e)}px)`;
+      } else {
+        babelLine.style.opacity = "0";
+      }
 
-      const cbRow = document.getElementById("cb-original");
-      const cbInput = document.getElementById("cb-original-input");
-      await clickTarget(cbRow);
-      cbInput.checked = false;
-      cbRow.classList.add("toggled-off");
-      await sleep(700);
-      await clickTarget(cbRow);
-      cbInput.checked = true;
-      cbRow.classList.remove("toggled-off");
-      await sleep(900);
+      const s4 = sceneMotion(t, scenes[3].start, scenes[3].end);
+      const cmdText = document.getElementById("cmd-text");
+      const caret = document.getElementById("cmd-caret");
+      const echoLine = document.getElementById("echo-line");
+      if (s4.opacity > 0.05) {
+        const typeStart = 11.0;
+        const typeEnd = 12.6;
+        const chars = Math.floor(
+          clamp((t - typeStart) / (typeEnd - typeStart), 0, 1) * SEND_TEXT.length,
+        );
+        cmdText.textContent = SEND_TEXT.slice(0, chars);
+        caret.style.opacity = t < typeEnd ? "1" : "0";
+        const showEcho = clamp((t - 12.85) / 0.35, 0, 1);
+        const e = easeOutCubic(showEcho);
+        echoLine.style.opacity = String(e);
+        echoLine.style.transform = `translateY(${5 * (1 - e)}px)`;
+      } else {
+        cmdText.textContent = "";
+        caret.style.opacity = "1";
+        echoLine.style.opacity = "0";
+      }
 
-      const btnTest = document.getElementById("btn-test");
-      await clickTarget(btnTest, { pressClass: "btn-pressed" });
-      document.getElementById("test-result").classList.add("visible");
-      await sleep(3200);
+      const cursor = document.getElementById("mock-cursor");
+      let cx = 640;
+      let cy = 400;
+      let visible = t >= 0.2 && t < 14.6;
 
-      await transitionToScene("scene-incoming");
-      setCaption("Incoming chat — translation with original underneath");
-      await sleep(2200);
-      document.getElementById("scene-incoming").classList.add("show-translation");
-      await sleep(4500);
+      if (t >= 0.8 && t < 3.5) {
+        const p = clamp((t - 0.8) / 0.5, 0, 1);
+        cx = lerp(520, 720, easeOutCubic(p));
+        cy = lerp(320, 430, easeOutCubic(p));
+      } else if (t >= 1.0 && t < 1.6) {
+        cx = 720;
+        cy = 430;
+      } else if (t >= 3.4 && t < 7.2) {
+        cx = 520;
+        cy = 280;
+      } else if (t >= 7.0 && t < 10.6) {
+        cx = 280;
+        cy = 520;
+      } else if (t >= 10.5 && t < 14.5) {
+        const p = clamp((t - 10.5) / 0.6, 0, 1);
+        cx = lerp(400, 520, easeOutCubic(p));
+        cy = lerp(380, 668, easeOutCubic(p));
+      }
 
-      await transitionToScene("scene-send");
-      setCaption("/babel send — outgoing translate to local Say; /babel toggles the window");
-      document.getElementById("cmd-cursor").style.opacity = "1";
-      await moveCursorTo(520, 668, 720);
-      await sleep(900);
-      await typeCommand("Hello, nice to meet you!", 48);
-      await sleep(350);
-      await playClickRipple();
-      document.getElementById("scene-send").classList.add("show-say");
-      await moveCursorTo(640, 380, 600);
-      await sleep(4000);
-
-      hideCaption();
-      await sleep(500);
-      cursorEl.classList.remove("visible");
-      await sleep(400);
-      window.__walkthroughDone = true;
+      cursor.style.left = `${cx}px`;
+      cursor.style.top = `${cy}px`;
+      cursor.classList.toggle("visible", visible);
     };
+
+    seekWalkthrough(0);
   </script>
 </body>
 </html>
