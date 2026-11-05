@@ -9,6 +9,39 @@ body {
   overflow: hidden;
 }
 
+.mockup-banner {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1a1200;
+  background: linear-gradient(135deg, #f5c842, #e8a020);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.scene-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 9998;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f0f0f0;
+  background: rgba(0, 0, 0, 0.72);
+  border-left: 3px solid #f5c842;
+  border-radius: 3px;
+  max-width: 820px;
+  line-height: 1.35;
+}
+
 .scene {
   position: relative;
   width: 1280px;
@@ -158,4 +191,6 @@ body {
 .chat-say { color: #e8e8e8; }
 .chat-name { color: #8fd4ff; }
 .chat-party { color: #c8b0ff; }
+.chat-babel { color: #a8d8a8; }
+.chat-echo { color: #c8c8c8; font-style: italic; }
 .chat-original { color: #909090; font-size: 13px; }
