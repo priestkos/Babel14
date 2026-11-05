@@ -54,6 +54,11 @@ public sealed class ChatTranslator : IDisposable
         if (string.IsNullOrWhiteSpace(text) || ownMessages.Contains(text))
             return;
 
+        // shortcut: an English reader skips every Latin-script line, so French/German/Spanish/Malay go
+        // untranslated too (user's choice); upgrade to a language detector if those are ever wanted.
+        if (config.NativeLanguage.Equals("English", StringComparison.OrdinalIgnoreCase) && TextMatch.IsLatinOnly(text))
+            return;
+
         if (Volatile.Read(ref pendingIncoming) >= MaxPendingIncoming)
             return;
 

@@ -25,6 +25,26 @@ public class TextMatchTests
     public void DifferentTextIsATranslation(string a, string b) =>
         Assert.False(TextMatch.Same(a, b));
 
+    [Theory]
+    [InlineData("lol gg, thanks for the run!")]
+    [InlineData("on my way <se.1> 123")]
+    [InlineData("Ça va? Danke schön, señor")]
+    [InlineData("Tôi đi đây")]
+    [InlineData("\uE040 Looking for party \uE041 🎉")]
+    [InlineData("")]
+    public void LatinScriptLinesAreSkippedForAnEnglishReader(string text) =>
+        Assert.True(TextMatch.IsLatinOnly(text));
+
+    [Theory]
+    [InlineData("ありがとう")]
+    [InlineData("gg ありがと")]
+    [InlineData("ｗｗｗ")]
+    [InlineData("안녕하세요")]
+    [InlineData("привет")]
+    [InlineData("零式 ok?")]
+    public void AnyNonLatinLetterStillGetsTranslated(string text) =>
+        Assert.False(TextMatch.IsLatinOnly(text));
+
     [Fact]
     public void EmptyOrSymbolOnlyTextIsNeverTreatedAsATranslationOfItself()
     {

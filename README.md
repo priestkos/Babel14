@@ -111,6 +111,7 @@ dotnet test Babel14.Tests/Babel14.Tests.csproj    # 35 tests, all pass
 - Model prices in the dropdown are a snapshot of `openrouter.ai/api/v1/models` taken 2026-11-02 (USD per 1M tokens, prompt / completion) and are labels only — the plugin never bills, quotes or verifies them.
 - One translation at a time; lines arriving beyond 8 pending are skipped.
 - Empty or unchanged replies are suppressed, not printed.
+- When your language is English, a line with no non-Latin letters (no kana, kanji, hangul, Cyrillic or full-width text) is never sent to the model. That stops English being "translated" into reworded English, but French, German, Spanish, Malay and Indonesian lines are skipped too.
 - Prompt injection is mitigated, not prevented: the guard is a prompt, and a model that ignores it will still answer instead of translating.
 - Not verified in game: behaviour is taken from the code and the offline tests, not from a live client.
 
