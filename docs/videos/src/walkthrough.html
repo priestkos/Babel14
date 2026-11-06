@@ -24,6 +24,10 @@
       will-change: transform, opacity;
     }
 
+    .scene .scene {
+      opacity: 1;
+    }
+
     .beat-label {
       position: absolute;
       top: 88px;
@@ -70,7 +74,7 @@
     }
 
     .s2 .imgui-window {
-      left: 340px;
+      left: 420px;
       top: 40px;
       width: 600px;
     }
@@ -96,7 +100,7 @@
 
     .s4 .command-bar {
       position: absolute;
-      bottom: 24px;
+      bottom: 72px;
       left: 50%;
       transform: translateX(-50%);
       width: 640px;
@@ -113,13 +117,13 @@
     }
 
     .s4 .chat-log {
-      bottom: 120px;
+      bottom: 140px;
     }
 
     .s4 .imgui-window {
-      left: 32px;
-      top: 48px;
-      width: 360px;
+      left: 800px;
+      top: 80px;
+      width: 440px;
     }
 
     .s4 .chat-echo-line {
@@ -266,9 +270,17 @@
             <div class="tab active">Translate</div>
             <div class="tab">Settings</div>
           </div>
-          <p class="label-hint" style="font-size: 12px;">
-            /babel toggles this window. Dalamud plugin bar buttons also open it.
+          <p class="label-hint">
+            Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
           </p>
+          <div class="field-row">
+            <span class="field-label">Target language</span>
+            <div class="input">English</div>
+          </div>
+          <div class="field-row">
+            <div class="input-multiline"></div>
+          </div>
+          <div class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
         </div>
       </div>
     </div>
@@ -302,7 +314,7 @@
         id: "scene2",
         start: 3.2,
         end: 7.4,
-        caption: "Settings — OpenRouter backend, languages, Translate incoming chat, Test connection",
+        caption: "Settings — LLM backend, languages, Translate incoming chat, Test connection",
       },
       {
         id: "scene3",
@@ -453,7 +465,7 @@
       } else if (t >= 10.5 && t < 14.5) {
         const p = clamp((t - 10.5) / 0.6, 0, 1);
         cx = lerp(400, 520, easeOutCubic(p));
-        cy = lerp(380, 668, easeOutCubic(p));
+        cy = lerp(380, 630, easeOutCubic(p));
       }
 
       cursor.style.left = `${cx}px`;

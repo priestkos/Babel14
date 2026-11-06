@@ -7,7 +7,7 @@
   <style>
     .command-bar {
       position: absolute;
-      bottom: 24px;
+      bottom: 56px;
       left: 50%;
       transform: translateX(-50%);
       width: 640px;
@@ -34,16 +34,24 @@
     <div class="command-bar">
       <span class="cmd-prefix">&gt; </span>/babel send こんにちは、はじめまして
     </div>
-    <div class="imgui-window" style="left: 32px; top: 48px; width: 360px;">
+    <div class="imgui-window" style="left: 800px; top: 80px; width: 440px;">
       <div class="imgui-titlebar">Babel</div>
       <div class="imgui-body">
         <div class="tab-bar">
           <div class="tab active">Translate</div>
           <div class="tab">Settings</div>
         </div>
-        <p class="label-hint" style="font-size: 12px;">
-          /babel toggles this window. Dalamud plugin bar buttons also open it.
-        </p>
+        <p class="label-hint">
+            Compose a message in your language; it will be translated, printed to local chat, and copied to your clipboard.
+          </p>
+          <div class="field-row">
+            <span class="field-label">Target language</span>
+            <div class="input">English</div>
+          </div>
+          <div class="field-row">
+            <div class="input-multiline"></div>
+          </div>
+          <div class="btn btn-primary">Translate &amp; Copy to Clipboard</div>
       </div>
     </div>
   </div>
