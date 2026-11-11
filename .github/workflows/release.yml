@@ -188,7 +188,7 @@ jobs:
             }
             $dllEntry = $dllEntries | Where-Object { $_.Name -eq $pluginDllName } | Select-Object -First 1
             if (-not $dllEntry) {
-              $dllEntry = $dllEntries | Select-Object -First 1
+              throw "$pluginDllName not found inside latest.zip"
             }
             $manifestName = [System.IO.Path]::ChangeExtension($dllEntry.Name, '.json')
             $manifestEntry = $archive.Entries | Where-Object { $_.Name -eq $manifestName }
