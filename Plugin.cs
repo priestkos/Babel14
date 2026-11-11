@@ -61,6 +61,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public void Dispose()
     {
+        CommandManager.RemoveHandler(CommandName);
         PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleMain;
         PluginInterface.UiBuilder.OpenMainUi -= ToggleMain;
@@ -69,8 +70,6 @@ public sealed class Plugin : IDalamudPlugin
         window.Dispose();
         Translator.Dispose();
         Llm.Dispose();
-
-        CommandManager.RemoveHandler(CommandName);
     }
 
     private void ToggleMain() => window.Toggle();
