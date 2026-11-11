@@ -33,11 +33,4 @@ public sealed class OwnMessageTracker
         owned.Clear();
         owned[text] = 0;
     }
-
-    /// <summary>Mark every distinct non-empty line that will appear in chat.</summary>
-    public void MarkAll(params string?[] texts)
-    {
-        foreach (var text in texts)
-            Mark(text);
-    }
 }

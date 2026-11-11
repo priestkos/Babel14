@@ -34,9 +34,6 @@ public sealed class ChatTranslator : IDisposable
         chat.ChatMessage += OnChatMessage;
     }
 
-    /// <summary>True while a translation holds the gate (incoming or outgoing).</summary>
-    public bool Busy => gate.CurrentCount == 0;
-
     public void MarkOwn(string text) => ownMessages.Mark(text);
 
     private void OnChatMessage(IHandleableChatMessage msg)

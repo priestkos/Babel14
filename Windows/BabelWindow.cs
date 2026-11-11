@@ -98,15 +98,12 @@ public class BabelWindow : Window, IDisposable
 
     private async Task SendAsync()
     {
-        var config = plugin.Configuration;
         sending = true;
         sendStatus = "Translating...";
         var sent = outgoingText;
         try
         {
-            var target = string.IsNullOrWhiteSpace(targetLanguage)
-                ? config.KnownLanguages.FirstOrDefault(l => !string.IsNullOrWhiteSpace(l)) ?? "English"
-                : targetLanguage.Trim();
+            var target = string.IsNullOrWhiteSpace(targetLanguage) ? FirstKnownLanguage() : targetLanguage.Trim();
 
             var translated = await plugin.Translator.TranslateOutgoingAsync(sent.Trim(), target)
                 .ConfigureAwait(false);

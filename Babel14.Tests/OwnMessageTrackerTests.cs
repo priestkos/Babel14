@@ -24,21 +24,6 @@ public class OwnMessageTrackerTests
     }
 
     [Fact]
-    public void MarkAll_covers_show_original_line_and_translation()
-    {
-        var tracker = new OwnMessageTracker();
-        const string translated = "Hello";
-        const string original = "こんにちは";
-        var line = $"{translated}\n[babel Bob: {original}]";
-
-        tracker.MarkAll(translated, line);
-
-        Assert.True(tracker.Contains(translated));
-        Assert.True(tracker.Contains(line));
-        Assert.False(tracker.Contains(original));
-    }
-
-    [Fact]
     public void Duplicate_foreign_lines_are_not_auto_owned()
     {
         var tracker = new OwnMessageTracker();
@@ -68,7 +53,7 @@ public class OwnMessageTrackerTests
         var tracker = new OwnMessageTracker();
         tracker.Mark(null);
         tracker.Mark("");
-        tracker.MarkAll(null, "", "ok");
+        tracker.Mark("ok");
         Assert.Equal(1, tracker.Count);
         Assert.True(tracker.Contains("ok"));
     }
