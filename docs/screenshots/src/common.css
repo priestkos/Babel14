@@ -150,8 +150,8 @@ body {
 }
 .btn-primary { background: #4a6a9a; border-color: #6a8aba; }
 
-.status-ok { color: #b8d4a8; margin-top: 10px; line-height: 1.45; }
-.status-muted { color: #888; font-style: italic; }
+.status-ok { color: #f0f0f0; margin-top: 10px; line-height: 1.45; }
+.status-muted { color: #888; }
 
 .separator {
   border: none;

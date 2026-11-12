@@ -80,7 +80,7 @@
     }
 
     .s2 .test-result {
-      color: #b8d4a8;
+      color: #f0f0f0;
       margin-top: 8px;
       line-height: 1.45;
     }
@@ -232,7 +232,7 @@
           <hr class="separator" />
           <label class="checkbox-row"><input type="checkbox" checked /> Translate incoming chat</label>
           <div style="margin-top: 12px;">
-            <div id="btn-test" class="btn btn-sm btn-primary" style="width: 140px;">Test connection</div>
+            <div id="btn-test" class="btn btn-sm" style="width: 140px;">Test connection</div>
           </div>
           <p id="test-result" class="test-result">OK - model replied: Hello, nice to meet you!</p>
         </div>
@@ -244,11 +244,11 @@
     <div class="scene">
       <div class="beat-label">Incoming — (Babel) follow-up</div>
       <div class="chat-log">
-        <div class="chat-line chat-party">
-          <span class="chat-name">Example Character</span> says, "準備はいい？"
+        <div class="chat-line chat-say">
+        <span class="chat-name">Wol Adventurer</span>: Are you ready?
         </div>
-        <div id="babel-line" class="chat-line chat-babel chat-babel-line">
-          <span class="chat-name">(Babel) Example Character</span>: Are you ready?
+        <div id="babel-line" class="chat-line chat-say chat-babel-line">
+          <span class="chat-name">(Babel) Wol Adventurer</span>: 準備はいい？
         </div>
       </div>
     </div>
