@@ -1,4 +1,4 @@
-﻿# Babel14
+# Babel14
 
 <img src="images/icon.png" width="96">
 
@@ -14,13 +14,20 @@ Two-way in-game chat translation for FFXIV, powered by any OpenAI-compatible LLM
 - **Outgoing** — compose in the window or `/babel send <text>`; the translation goes to **local** chat as an `Echo` line, and from the window also to the clipboard for pasting into the game chat box.
 - **Any OpenAI-compatible endpoint** — OpenAI, DeepSeek, OpenRouter, or a local llama.cpp / LM Studio / KoboldCpp server.
 
+### What it is not meant to do
+
+- **It does not send chat for you.** Outgoing translations go to local `Echo` and the clipboard; you paste and send them yourself.
+- **It does not hide or replace the original line.** The translation is an extra line beside it.
+- **It does not send chat out without an API key.** With the key field empty, incoming lines are never sent to a model.
+- **It does not detect languages itself.** The model decides; the only local filter is the Latin-script skip (see Limits).
+
 ## Screenshots
 
 Screenshots are mock-ups illustrating the UI, not captures from the live game.
 
 | | |
 | --- | --- |
-| ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — compose outgoing text, optional target language, **Translate & Copy to Clipboard** (prints an Echo line and copies the translation). |
+| ![Translate tab — outgoing compose, target language, and success status](docs/screenshots/01-translate-tab.png) | **Translate tab** — after **Translate & Copy to Clipboard**: the Echo line is printed, the translation copied, the compose box cleared and the status line shows the result. |
 | ![Settings tab — LLM backend, languages, translate incoming chat, test connection](docs/screenshots/02-settings-tab.png) | **Settings tab** — Base URL, Model, API Key, Translate incoming into, known languages (+ Add / Remove), **Translate incoming chat** checkbox, **Test connection**. |
 | ![Incoming chat — (Babel) follow-up in the same channel](docs/screenshots/03-incoming-chat.png) | **Incoming translation** — foreign line in chat, then a single follow-up in the same channel as `(Babel) Sender: …` (not a duplicate of the original line). |
 | ![Slash command /babel send — local Echo output](docs/screenshots/04-babel-send-command.png) | **`/babel send`** — Japanese outgoing text translated to your first known language ≠ native, printed locally as Echo; **`/babel`** toggles the window (Dalamud main/config plugin buttons do the same). |
@@ -40,7 +47,7 @@ Same UI mock-ups as the screenshots above, sequenced in headless Chromium (~**15
 | `/babel` — toggle Babel window | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (window open); also [01](docs/screenshots/01-translate-tab.png), [02](docs/screenshots/02-settings-tab.png) |
 | Dalamud **Open Main UI** / **Open Config UI** plugin buttons (same toggle) | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) (caption) |
 | **Translate** tab — multiline compose, target language dropdown, **Translate & Copy to Clipboard**, status text | [01-translate-tab.png](docs/screenshots/01-translate-tab.png) |
-| **`/babel send &lt;text&gt;`** — outgoing translate to first known language ≠ your language, local Echo | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
+| **`/babel send <text>`** — outgoing translate to first known language ≠ your language, local Echo | [04-babel-send-command.png](docs/screenshots/04-babel-send-command.png) |
 | **Translate incoming chat** (watched `XivChatType` channels) | [03-incoming-chat.png](docs/screenshots/03-incoming-chat.png); toggle in [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **LLM backend** — Base URL, Model, API Key (password field; “API key is set…” hint) | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
 | **Languages** — incoming target dropdown, known-language dropdown rows, **+ Add known language**, **Remove** | [02-settings-tab.png](docs/screenshots/02-settings-tab.png) |
@@ -51,9 +58,9 @@ Same UI mock-ups as the screenshots above, sequenced in headless Chromium (~**15
 
 Messages from `IChatGui.ChatMessage` whose `LogKind` is in `WatchedChannels` (raw `XivChatType` values; default Say, Yell, Shout, incoming Tell, Party and cross-world Party, Alliance, Novice Network, Linkshells 1–8 and Cross-world Linkshells 1–8; a v1 config is reset to this list once on load, because its ids were mislabelled) are translated one at a time behind a semaphore; up to 8 queue and the rest are dropped.
 
-Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and a system prompt that sets the Final Fantasy XIV context (its themes and tone, its world, jobs, items and player slang), keeps tone, names and `<t>` emotes, asks for the translation only, and states that the player's message is untrusted data to translate rather than instructions to follow. That prompt is sent with every request (incoming and outgoing), so every message is wrapped in it. Without a key no Bearer header is sent; requests time out after 20 s.
+Each call is one `POST {BaseUrl}/chat/completions` with the model, `temperature 0.1` and one system prompt for every request: Final Fantasy XIV context, keep tone, names and `<t>` emotes, reply with the translation only, and treat the player's message as untrusted data, not instructions. Requests time out after 20 s. Without a key no Bearer header is sent and incoming chat is not translated at all. A failed incoming translation prints at most one `[babel] translation failed: …` error line per 30 s, with a `(N similar suppressed)` count; a failed `/babel send` prints `[babel] …`; the window shows `Error: …`.
 
-Printed lines are recorded in an own-message tracker (256 entries, cleared on overflow) so the echoed chat line is not translated again.
+Printed lines go into an own-message tracker (256 entries, cleared on overflow) so they are not translated again.
 
 ## Commands
 
@@ -64,8 +71,8 @@ Printed lines are recorded in an own-message tracker (256 entries, cleared on ov
 
 ## Settings
 
-- **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model dropdown, API key; edits apply and save at once. An OpenRouter key (`sk-or-…`) is still required.
-  - **Model** is a dropdown of presets, each labelled with its price per 1M tokens: `openrouter/free` (default), `google/gemma-4-31b-it:free`, `nvidia/nemotron-3.5-lightning:free`, `inclusionai/ling-3.0-flash`, `z-ai/glm-5.3-flash`, **`qwen/qwen3.7-flash` (recommended)**, `mistralai/mistral-nemo`, `mistral-small-24b-instruct-2501`, `openai/gpt-5-nano`, `google/gemini-2.5-flash-lite`, `anthropic/claude-haiku-5.5`.
+- **LLM backend** — base URL (default `https://openrouter.ai/api/v1`), model dropdown, API key; edits apply and save at once. A key is needed: without one incoming chat is skipped and **Test connection** answers `Set your API key first.` A saved key is never shown again; typing replaces it.
+  - **Model** is a dropdown of presets, each labelled with its price per 1M tokens: `openrouter/free` (default), `google/gemma-4-31b-it:free`, `nvidia/nemotron-3.5-lightning:free`, `inclusionai/ling-3.0-flash`, `z-ai/glm-5.3-flash`, **`qwen/qwen3.7-flash` (recommended)**, `mistralai/mistral-nemo`, `mistralai/mistral-small-24b-instruct-2501`, `openai/gpt-5-nano`, `google/gemini-2.5-flash-lite`, `anthropic/claude-haiku-5.5`.
   - **Custom** (last entry) reveals a free-text `Model slug` field, so any OpenRouter id — `vendor/model` or `vendor/model:free` — can be used; a config holding an id that is not a preset opens straight into that field.
 - **Languages** — `Translate incoming into` dropdown (default **Japanese**) and an editable known-language list (default **English**; the first entry is the default outgoing target, overridable per message). Every picker is a dropdown of the eight languages: Japanese, English, French, German, Spanish, Malay, Indonesian, Korean — Japanese and English first.
 - **Behaviour** — translate incoming chat.
@@ -92,10 +99,10 @@ dotnet build -c Release    # zip in bin/Release/Babel14/latest.zip
 
 ## Tests
 
-`OwnMessageTracker` is tested offline without Dalamud (the test project links `Services/OwnMessageTracker.cs`): exact matches, no insert on lookup, both printed forms marked but not the original, overflow keeps only the latest.
+xUnit tests run offline without Dalamud against the `Services/` helpers the test project links: request URL, header and body, error replies, timeouts, the system prompt, text matching, the language and model lists, the error throttle and the own-message tracker.
 
 ```
-dotnet test Babel14.Tests/Babel14.Tests.csproj    # 35 tests, all pass
+dotnet test Babel14.Tests/Babel14.Tests.csproj    # 55 tests, all pass
 ```
 
 ## Security
@@ -121,8 +128,13 @@ dotnet test Babel14.Tests/Babel14.Tests.csproj    # 35 tests, all pass
 Plugin.cs                     entry point, /babel handler, plugin services
 Configuration.cs              saved settings (URL, model, key, languages, channels)
 Services/ChatTranslator.cs    chat hook, queueing, incoming/outgoing prompts
+Services/ErrorThrottle.cs     one error line per 30 s, counts the rest
+Services/Languages.cs         the eight picker languages and defaults
 Services/LlmClient.cs         OpenAI-compatible client, test call, 20 s timeout
+Services/Models.cs            model presets with price labels, Custom entry
 Services/OwnMessageTracker.cs de-duplication of lines the plugin printed
+Services/TextMatch.cs         pass-through check, Latin-script test
 Windows/BabelWindow.cs        Translate and Settings tabs
-Babel14.Tests/             xUnit tests for OwnMessageTracker
+Babel14.Tests/                xUnit tests for the Services helpers
+docs/                         mock-up screenshots and walkthrough video
 ```
